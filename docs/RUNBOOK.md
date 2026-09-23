@@ -12,4 +12,6 @@ Importer authors must put the final successful run update and watermark update i
 
 Trakt's first import and replay completed 2026-09-23. Dave has no MAL account; AniList is his anime list source. The MAL importer was removed, and the AniList seed has not run. The Crunchyroll runner choice remains open; n8n is a proposal, not an approved activation. The existing migration includes unused MAL enum values; removing them from a shared live project is outside this scoped cleanup.
 
+AniList application gate: review and apply only `20260923183118_marquee_anilist_user_state_source.sql`, verify `05_anilist_user_state_source.sql` plus unchanged GameDeck baseline, then execute the read-only AniList dry run for Dave's username. Use `scripts/anilist-import/README.md` for private-list access and the first import. Report the account ID, counts, unresolved ID review count, second-run replay behavior, and unchanged GameDeck baseline. No migration or live import is applied by a repo commit.
+
 Operator handoff: report applied version, table counts, role verification, GameDeck baseline diff, advisors, unmapped count, replay outcome and current watermarks. Do not call a repo commit or unapplied SQL live.

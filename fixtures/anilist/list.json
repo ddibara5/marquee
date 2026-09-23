@@ -1,0 +1,39 @@
+{
+  "data": {
+    "User": {"id": 987654, "name": "ExampleAccount"},
+    "MediaListCollection": {
+      "lists": [
+        {"entries": [
+          {
+            "id": 1001, "userId": 987654, "mediaId": 2001, "status": "COMPLETED",
+            "score": 85, "score10": 8.5, "progress": 12, "updatedAt": 1700000000,
+            "private": false, "hiddenFromStatusLists": false,
+            "media": {"id": 2001, "type": "ANIME", "format": "TV",
+              "title": {"romaji": "Example Orbit", "english": null, "native": null},
+              "startDate": {"year": 2020}, "relations": {"edges": []}}
+          },
+          {
+            "id": 1002, "userId": 987654, "mediaId": 2002, "status": "CURRENT",
+            "score": 0, "score10": 0, "progress": 3, "updatedAt": 1700000100,
+            "private": false, "hiddenFromStatusLists": true,
+            "media": {"id": 2002, "type": "ANIME", "format": "TV",
+              "title": {"romaji": "Example Garden II", "english": null, "native": null},
+              "startDate": {"year": 2021},
+              "relations": {"edges": [{"relationType": "PREQUEL", "node": {"id": 2003, "type": "ANIME"}}]}}
+          }
+        ]},
+        {"entries": [
+          {
+            "id": 1002, "userId": 987654, "mediaId": 2002, "status": "CURRENT",
+            "score": 0, "score10": 0, "progress": 3, "updatedAt": 1700000100,
+            "private": false, "hiddenFromStatusLists": true,
+            "media": {"id": 2002, "type": "ANIME", "format": "TV",
+              "title": {"romaji": "Example Garden II", "english": null, "native": null},
+              "startDate": {"year": 2021},
+              "relations": {"edges": [{"relationType": "PREQUEL", "node": {"id": 2003, "type": "ANIME"}}]}}
+          }
+        ]}
+      ]
+    }
+  }
+}

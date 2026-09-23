@@ -4,7 +4,9 @@ Status: Phase 1 schema applied 2026-09-23 as migrations `20260923151159` and `20
 
 Update 2026-09-23: Trakt import and replay succeeded. Dave's anime statuses and scores live on anilist.co through MyAniList for iOS; no MAL account exists, and the unused MAL importer was removed. The next adapter seeds the AniList list using stable media IDs and preserves account score format. The Crunchyroll runner choice is open; the n8n references below remain proposed architecture.
 
-Before the AniList seed can write user state, author and verify a forward, Marquee-only migration allowing `source='anilist'` in `marquee_statuses` and `marquee_ratings`. Their applied check constraints currently allow MAL but exclude AniList. Do not rewrite the applied migration or touch GameDeck. Determine the actual AniList score format and list visibility before writing the adapter. Leave the historical unused MAL values in the applied schema until there is a separately reviewed cleanup.
+Before the AniList seed writes user state, review and apply the forward, Marquee-only migration allowing `source='anilist'` in `marquee_statuses` and `marquee_ratings`. Their previously applied check constraints allow MAL but exclude AniList. Do not rewrite the applied migration or touch GameDeck. Confirm list visibility before a real run. Leave the historical unused MAL values in the applied schema until a separately reviewed cleanup.
+
+The forward migration and offline-tested importer now live at `supabase/migrations/20260923183118_marquee_anilist_user_state_source.sql` and `scripts/anilist-import/`. The script requests scores on AniList's fixed 10-point decimal scale and retains the raw entry. The migration is not live. Verify list visibility with Dave's AniList username; private entries require a secure OAuth token for a complete seed. Linked anime are preserved for franchise review rather than assigned an automatic show.
 
 | Layer | Tables | Key invariant |
 | --- | --- | --- |

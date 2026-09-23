@@ -1,1 +1,1 @@
-Phase 2 will add sanitized source payloads. Do not commit personal watch history or credentials.
+The Trakt and AniList fixtures are synthetic. Do not commit personal watch history, an actual AniList list, or credentials.

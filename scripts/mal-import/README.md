@@ -1,5 +1,7 @@
 # One-time MAL anime status and score seed
 
+**Parked 2026-09-23:** Dave confirmed that his current anime tracking data is on anilist.co through the MyAniList iOS client, not a confirmed MAL list. Do not run this script against his current data. Build a dedicated AniList list seed. Retain this importer only if a separate MAL export is later identified.
+
 Jikan v4 [discontinued its user anime-list endpoint in 2022](https://github.com/jikan-me/jikan-rest/blob/master/storage/api-docs/api-docs.json). A username cannot supply the list through that endpoint. This importer reads an XML or XML.gz export from [MyAnimeList's export page](https://myanimelist.net/panel.php?go=export) instead. Jikan is not needed to read the private status and score fields. No network calls, MAL write-back, or scheduler are involved.
 
 The operator supplies the export privately; it contains personal list data and must not be committed. The only committed fixture, `fixtures/mal/list.xml`, is synthetic. The importer uses `series_animedb_id` as the stable key and expects an existing `marquee_source_mappings` row `(source='mal', source_entity_type='anime', source_id=<MAL ID>)` pointing to an anime season or show. It never resolves by title. Unknown IDs retain their raw payload in `marquee_ingest_raw` and get an open `marquee_mapping_review` row. After a verified mapping is created, replay the **same export** to seed the status and score. A score of zero is unrated. Any existing status or rating, including an older MAL seed, wins over the import. This is a seed, not a sync.

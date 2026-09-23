@@ -15,7 +15,7 @@ Marquee tracks shows, movies, anime seasons and episodes. V1 includes episode ch
 ## Next releases
 
 - Trakt import and replay completed on 2026-09-23; the manual Actions workflow is unscheduled.
-- One-time MAL XML status/score seed, with unmapped MAL IDs queued for verified mapping.
+- Seed Dave's anilist.co anime statuses and scores using stable AniList IDs, after checking list visibility or private authorization. MyAniList on iOS is his client. The MAL XML importer is parked pending evidence of separate MAL data.
 - The Crunchyroll runner choice remains open; n8n is still the original proposal, without activation approval.
 - Mapping corrections and real-history validation by Muse.
 

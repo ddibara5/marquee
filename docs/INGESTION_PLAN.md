@@ -4,6 +4,8 @@ Status: Phase 1 schema applied 2026-09-23 as migrations `20260923151159` and `20
 
 Update 2026-09-23: Trakt import and replay succeeded. The Crunchyroll runner choice is open; the n8n references below remain proposed architecture. The MAL importer accepts a private MAL XML export because Jikan's user anime-list endpoint is discontinued. See `scripts/mal-import/README.md`.
 
+Dave confirmed current anime statuses and scores live on anilist.co through the MyAniList iOS client. The MAL exporter is parked; implement an AniList list seed after checking list visibility or private authorization. Earlier MAL/Jikan references below are historical planning notes.
+
 | Layer | Tables | Key invariant |
 | --- | --- | --- |
 | Catalog | `marquee_titles`, `marquee_shows`, `marquee_movies`, `marquee_seasons`, `marquee_episodes` | One top-level title is a show or movie; seasons belong to shows and episodes to seasons. |

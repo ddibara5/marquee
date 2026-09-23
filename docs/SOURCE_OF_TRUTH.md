@@ -5,7 +5,7 @@
 | Non-anime TV and movie watch history | Trakt | Store every observation in raw ingestion. Manual corrections outrank imports. |
 | Ongoing anime episode history | Crunchyroll | Trakt overlap is kept as evidence and linked to one canonical event. |
 | Anime identity, season entries, schedules and explicit relations | AniList | Stable AniList ID maps to a season. Franchise rules require an approved relation allowlist; unusual graphs go to review. |
-| Initial anime status and score | MAL XML export | Seed once using stable MAL IDs. Jikan no longer serves user anime lists. Never replace existing status or rating. Score zero means unrated. |
+| Initial anime status and score | Dave's anilist.co account via MyAniList on iOS | Seed using stable AniList media IDs. Never replace existing status or rating. MAL XML import is parked unless separate MAL data is confirmed. |
 | Artwork, metadata and watch providers | TMDb | Deferred until PWA work. Retain available TMDb/IMDb IDs from Trakt now. |
 | Marquee user edits | Manual | A manual lock wins over automatic mapping or state refresh. |
 

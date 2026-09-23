@@ -146,6 +146,31 @@ class CrunchyrollProbeTests(unittest.TestCase):
         self.assertEqual(envelope, {"reported_total": 1200,
                                     "meta_field_names": ["next"]})
 
+    def test_identity_and_feed_overlap_only_emit_aggregate_counts(self):
+        v1 = [[{"id": "private-1", "parent_id": "other-parent",
+                "panel": {"id": "private-episode"}, "date_played": "2025-01-01T00:00:00Z"},
+               {"id": "private-2", "parent_id": "private-parent",
+                "date_played": "2025-01-02T00:00:00Z"},
+               {"id": "private-2", "parent_id": "private-parent",
+                "date_played": "2025-01-02T00:00:00Z"},
+               {"date_played": "2025-01-03T00:00:00Z"}]]
+        v2 = [[{"id": "private-1", "panel": {"id": "private-episode"},
+                "date_played": "2025-01-01T00:00:00Z"},
+               {"id": "private-3", "date_played": "2025-01-04T00:00:00Z"}]]
+        identity = probe.identity_diagnostics(v1)
+        self.assertEqual(identity["missing_event_id"], 1)
+        self.assertEqual(identity["duplicate_event_id_observations"], 1)
+        self.assertEqual(identity["parent_id_without_panel"], 2)
+        self.assertEqual(identity["unique_parent_ids_without_panel"], 1)
+        self.assertEqual(identity["parent_matches_panel_id"], 0)
+        overlap = probe.feed_overlap(v1, v2)
+        self.assertEqual(overlap, {"common_event_ids": 1, "v2_ids_absent_from_v1": 1,
+                                   "v1_ids_absent_from_v2": 1,
+                                   "common_ids_same_date_played": 1,
+                                   "common_ids_same_panel_id": 1})
+        output = json.dumps({"identity": identity, "overlap": overlap})
+        self.assertNotIn("private-", output)
+
 
 if __name__ == "__main__":
     unittest.main()

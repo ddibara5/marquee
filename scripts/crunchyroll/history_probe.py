@@ -249,6 +249,61 @@ def summarize(pages, *, account_keys=None):
             "profile_scope": "unverified; compare with the selected website profile"}
 
 
+def identity_diagnostics(pages):
+    """Count usable source IDs without emitting identifiers or record contents."""
+    counts = Counter()
+    event_ids, missing_panel_parents = Counter(), Counter()
+    for items in pages:
+        for item in items:
+            event_id = item.get("id")
+            if isinstance(event_id, str) and event_id:
+                event_ids[event_id] += 1
+            else:
+                counts["missing_event_id"] += 1
+            parent_id = item.get("parent_id")
+            panel = item.get("panel")
+            panel_id = panel.get("id") if isinstance(panel, dict) else None
+            if isinstance(panel_id, str) and panel_id:
+                counts["panel_id_present"] += 1
+                if isinstance(parent_id, str) and parent_id:
+                    counts["parent_id_with_panel"] += 1
+                    if parent_id == panel_id:
+                        counts["parent_matches_panel_id"] += 1
+            else:
+                counts["panel_id_missing"] += 1
+                if isinstance(parent_id, str) and parent_id:
+                    counts["parent_id_without_panel"] += 1
+                    missing_panel_parents[parent_id] += 1
+    return {"missing_event_id": counts["missing_event_id"],
+            "unique_event_ids": len(event_ids),
+            "duplicate_event_id_observations": sum(n - 1 for n in event_ids.values()),
+            "panel_id_present": counts["panel_id_present"],
+            "panel_id_missing": counts["panel_id_missing"],
+            "parent_id_with_panel": counts["parent_id_with_panel"],
+            "parent_matches_panel_id": counts["parent_matches_panel_id"],
+            "parent_id_without_panel": counts["parent_id_without_panel"],
+            "unique_parent_ids_without_panel": len(missing_panel_parents)}
+
+
+def feed_overlap(v1_pages, v2_pages):
+    """Compare stable event IDs across feeds; keep the ID values private."""
+    v1 = {item["id"]: item for page in v1_pages for item in page
+          if isinstance(item.get("id"), str) and item["id"]}
+    v2 = {item["id"]: item for page in v2_pages for item in page
+          if isinstance(item.get("id"), str) and item["id"]}
+    common = v1.keys() & v2.keys()
+    return {"common_event_ids": len(common),
+            "v2_ids_absent_from_v1": len(v2.keys() - v1.keys()),
+            "v1_ids_absent_from_v2": len(v1.keys() - v2.keys()),
+            "common_ids_same_date_played": sum(
+                v1[key].get("date_played") == v2[key].get("date_played") for key in common),
+            "common_ids_same_panel_id": sum(
+                isinstance(v1[key].get("panel"), dict)
+                and isinstance(v2[key].get("panel"), dict)
+                and v1[key]["panel"].get("id") == v2[key]["panel"].get("id")
+                for key in common)}
+
+
 def main():
     pages = []
     envelope_keys = set()
@@ -279,14 +334,12 @@ def main():
                     for page in legacy_history_pages(account_id, token):
                         legacy_pages.append(page)
                     legacy = summarize(legacy_pages, account_keys=keys)
-                    v2_ids = {item.get("id") for page in pages for item in page
-                              if isinstance(item.get("id"), str)}
-                    overlap = sum(item.get("id") in v2_ids for page in legacy_pages
-                                  for item in page if isinstance(item.get("id"), str))
-                    if not overlap:
+                    overlap = feed_overlap(legacy_pages, pages)
+                    if not overlap["common_event_ids"]:
                         raise ProbeError("Legacy history has no matching event IDs")
                     print(json.dumps({"coverage": "legacy_next_page_end_observed",
-                                      "overlap_with_v2_observations": overlap,
+                                      "feed_overlap": overlap,
+                                      "identity_diagnostics": identity_diagnostics(legacy_pages),
                                       "observed": legacy}, sort_keys=True))
                     return 0
                 except ProbeError as legacy_exc:

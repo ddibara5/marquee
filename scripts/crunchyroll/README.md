@@ -15,4 +15,6 @@ The `content/v2` endpoint stopped at ten full pages and HTTP 400 on page 11. The
 
 The public Actions log contains aggregate history dates, counts and field names. Do not add a raw-data artifact or paste a cookie into a workflow input. This probe cannot prove the selected profile merely from account response fields; compare the result with the profile's website history. A successful dry run does not authorize an import or a recurring scheduler. After inspection, remove the temporary `CRUNCHYROLL_ETP_RT` secret unless explicitly needed for a separately reviewed next step.
 
+The next run also reports aggregate event-ID uniqueness, whether records without panels retain a parent ID, whether parent IDs agree with panel episode IDs when both exist, and exact v1/v2 event-ID overlap. A parent ID is only a mapping candidate until its meaning is verified; event IDs identify playback observations, not episodes. These counts do not identify the selected profile or establish a match to Trakt.
+
 Offline check: `python3 -m unittest discover -s tests -p 'test_crunchyroll_probe.py'`. The fixture contains invented IDs and titles.

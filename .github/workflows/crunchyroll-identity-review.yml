@@ -2,10 +2,6 @@ name: Crunchyroll identity review (read-only)
 
 on:
   workflow_dispatch:
-  # One-time probe on the script's initial commit; remove this push trigger after reviewing the run.
-  push:
-    paths:
-      - scripts/crunchyroll/identity_review_probe.py
 
 permissions:
   contents: read

@@ -1,0 +1,32 @@
+name: Crunchyroll identity review (read-only)
+
+on:
+  workflow_dispatch:
+  # One-time probe on the script's initial commit; remove this push trigger after reviewing the run.
+  push:
+    paths:
+      - scripts/crunchyroll/identity_review_probe.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marquee-crunchyroll-identity-review
+  cancel-in-progress: false
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Postgres driver
+        run: pip install "psycopg[binary]==3.3.6"
+      - name: Count stable episode and version evidence
+        run: python3 scripts/crunchyroll/identity_review_probe.py
+        env:
+          CRUNCHYROLL_ETP_RT: ${{ secrets.CRUNCHYROLL_ETP_RT }}
+          MARQUEE_DATABASE_URL: ${{ secrets.MARQUEE_DATABASE_URL }}

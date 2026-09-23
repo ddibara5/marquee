@@ -59,9 +59,9 @@ def read_anilist_catalog(database_url):
         raise CatalogError("Read-only AniList catalog lookup failed") from None
 
 
-def compare(pages, seasons, movies):
-    """Return counts of title candidates, never a durable source mapping."""
-    by_season_title, by_show_title, by_movie_title = (defaultdict(set) for _ in range(3))
+def season_title_indexes(seasons):
+    """Index catalog names and aliases for review candidates only."""
+    by_season_title, by_show_title = (defaultdict(set) for _ in range(2))
     for target, show_title, season_title, aliases in seasons:
         for value in (show_title, *aliases):
             if normalized_title(value):
@@ -69,6 +69,13 @@ def compare(pages, seasons, movies):
         for value in (season_title, *aliases):
             if normalized_title(value):
                 by_season_title[normalized_title(value)].add(target)
+    return by_season_title, by_show_title
+
+
+def compare(pages, seasons, movies):
+    """Return counts of title candidates, never a durable source mapping."""
+    by_season_title, by_show_title = season_title_indexes(seasons)
+    by_movie_title = defaultdict(set)
     for target, title, aliases in movies:
         for value in (title, *aliases):
             if normalized_title(value):

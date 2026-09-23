@@ -32,15 +32,25 @@ def read_anilist_catalog(database_url):
         with psycopg.connect(database_url, connect_timeout=15) as conn:
             with conn.cursor() as cur:
                 cur.execute("set transaction read only")
-                cur.execute("""select s.id::text, t.display_title, s.display_title
+                cur.execute("""select s.id::text, t.display_title, s.display_title,
+                           array_remove(array[r.payload #>> '{media,title,romaji}',
+                                              r.payload #>> '{media,title,english}',
+                                              r.payload #>> '{media,title,native}'], null)
                     from public.marquee_source_mappings m
                     join public.marquee_seasons s on s.id=m.season_id
                     join public.marquee_titles t on t.id=s.show_title_id
+                    left join public.marquee_ingest_raw r on r.source='anilist'
+                        and r.source_entity_type='media_list' and r.payload->>'mediaId'=m.source_id
                     where m.source='anilist' and m.canonical_entity_type='season'""")
                 seasons = cur.fetchall()
-                cur.execute("""select t.id::text, t.display_title
+                cur.execute("""select t.id::text, t.display_title,
+                           array_remove(array[r.payload #>> '{media,title,romaji}',
+                                              r.payload #>> '{media,title,english}',
+                                              r.payload #>> '{media,title,native}'], null)
                     from public.marquee_source_mappings m
                     join public.marquee_titles t on t.id=m.movie_title_id
+                    left join public.marquee_ingest_raw r on r.source='anilist'
+                        and r.source_entity_type='media_list' and r.payload->>'mediaId'=m.source_id
                     where m.source='anilist' and m.canonical_entity_type='movie'""")
                 movies = cur.fetchall()
         return seasons, movies
@@ -52,11 +62,17 @@ def read_anilist_catalog(database_url):
 def compare(pages, seasons, movies):
     """Return counts of title candidates, never a durable source mapping."""
     by_season_title, by_show_title, by_movie_title = (defaultdict(set) for _ in range(3))
-    for target, show_title, season_title in seasons:
-        by_show_title[normalized_title(show_title)].add(target)
-        by_season_title[normalized_title(season_title)].add(target)
-    for target, title in movies:
-        by_movie_title[normalized_title(title)].add(target)
+    for target, show_title, season_title, aliases in seasons:
+        for value in (show_title, *aliases):
+            if normalized_title(value):
+                by_show_title[normalized_title(value)].add(target)
+        for value in (season_title, *aliases):
+            if normalized_title(value):
+                by_season_title[normalized_title(value)].add(target)
+    for target, title, aliases in movies:
+        for value in (title, *aliases):
+            if normalized_title(value):
+                by_movie_title[normalized_title(value)].add(target)
     groups = defaultdict(lambda: {"episodes": 0, "season_titles": set(), "show_titles": set()})
     movie_panels = {}
     counts = defaultdict(int)

@@ -15,8 +15,8 @@ spec.loader.exec_module(probe)
 
 class CatalogOverlapTests(unittest.TestCase):
     def test_title_candidates_never_emit_ids_or_titles(self):
-        seasons = [("private-target-1", "Fabricated Show", "Fabricated Season"),
-                   ("private-target-2", "Fabricated Show", "Other Season")]
+        seasons = [("private-target-1", "Fabricated Show", "Fabricated Season", ["English Alternate"]),
+                   ("private-target-2", "Fabricated Show", "Other Season", [])]
         pages = [[{"id": "private-event", "panel": {"id": "private-episode",
                     "episode_metadata": {"series_id": "private-series", "season_id": "private-season",
                                          "series_title": "fabricated show",
@@ -24,7 +24,7 @@ class CatalogOverlapTests(unittest.TestCase):
                   {"id": "private-event-2", "parent_id": "private-series"},
                   {"id": "private-event-3", "panel": {"id": "private-movie", "type": "movie",
                         "title": "Fabricated Film"}}]]
-        result = probe.compare(pages, seasons, [("private-film", "Fabricated Film")])
+        result = probe.compare(pages, seasons, [("private-film", "Fabricated Film", [])])
         self.assertEqual(result["observations"], 3)
         self.assertEqual(result["without_episode_metadata"], 2)
         self.assertEqual(result["movie_title_candidates"], {"one": 1, "multiple": 0, "none": 0})
@@ -35,8 +35,8 @@ class CatalogOverlapTests(unittest.TestCase):
         self.assertNotIn("Fabricated", rendered)
 
     def test_series_only_match_is_ambiguous_and_conflict_is_flagged(self):
-        seasons = [("a", "Same Show", "Season A"), ("b", "Same Show", "Season B"),
-                   ("c", "Different Show", "Wrong Season")]
+        seasons = [("a", "Same Show", "Season A", []), ("b", "Same Show", "Season B", []),
+                   ("c", "Different Show", "Wrong Season", [])]
         pages = [[{"panel": {"id": "ep1", "episode_metadata": {
             "series_id": "show", "season_id": "one", "series_title": "Same Show"}}},
                   {"panel": {"id": "ep2", "episode_metadata": {
@@ -45,6 +45,13 @@ class CatalogOverlapTests(unittest.TestCase):
         result = probe.compare(pages, seasons, [])
         self.assertEqual(result["candidate_counts"]["multiple_title_candidates"]["source_seasons"], 1)
         self.assertEqual(result["candidate_counts"]["conflicting_title_evidence"]["source_seasons"], 1)
+
+    def test_anilist_english_alias_is_a_candidate(self):
+        seasons = [("target", "Romaji Name", "Romaji Name", ["English Name"])]
+        pages = [[{"panel": {"id": "ep", "episode_metadata": {
+            "series_id": "series", "season_id": "season", "series_title": "English Name"}}}]]
+        self.assertEqual(probe.compare(pages, seasons, [])["candidate_counts"]
+                         ["one_title_candidate"]["source_seasons"], 1)
 
 
 if __name__ == "__main__":

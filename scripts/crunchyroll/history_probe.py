@@ -125,8 +125,10 @@ def summarize(pages, *, account_keys=None):
     episode_ids = Counter()
     dates = []
     pages_read = 0
+    page_sizes = []
     for items in pages:
         pages_read += 1
+        page_sizes.append(len(items))
         counts["records"] += len(items)
         for item in items:
             event_keys.update(item)
@@ -160,7 +162,8 @@ def summarize(pages, *, account_keys=None):
                 counts["invalid_date_played"] += 1
     if not counts["records"]:
         raise ProbeError("History is empty; verify the selected Crunchyroll profile")
-    return {"pages": pages_read, "records": counts["records"],
+    return {"pages": pages_read, "page_sizes": page_sizes,
+            "records": counts["records"],
             "unique_episode_ids": len(episode_ids),
             "repeat_episode_observations": sum(n - 1 for n in episode_ids.values()),
             "fully_watched": counts["fully_watched"],
@@ -177,11 +180,19 @@ def summarize(pages, *, account_keys=None):
 
 
 def main():
+    pages = []
     try:
         token = bearer_from_cookie(os.environ.get("CRUNCHYROLL_ETP_RT", ""))
         account_id, keys = get_account_id(token)
-        result = summarize(history_pages(account_id, token), account_keys=keys)
+        for page in history_pages(account_id, token):
+            pages.append(page)
+        result = summarize(pages, account_keys=keys)
     except ProbeError as exc:
+        if pages:
+            # A boundary error must remain a failure, but coverage observed so far
+            # can help distinguish a short final page from a server-side page cap.
+            print(json.dumps({"coverage": "incomplete", "observed":
+                              summarize(pages)}, sort_keys=True))
         print(f"Crunchyroll probe failed: {exc}", file=sys.stderr)
         return 1
     print(json.dumps(result, sort_keys=True))

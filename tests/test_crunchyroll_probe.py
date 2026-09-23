@@ -30,6 +30,7 @@ class CrunchyrollProbeTests(unittest.TestCase):
         self.assertEqual(len(seen), 3)
         result = probe.summarize(pages, account_keys=["account_id"])
         self.assertEqual(result["records"], 3)
+        self.assertEqual(result["page_sizes"], [2, 1])
         self.assertEqual(result["unique_episode_ids"], 2)
         self.assertEqual(result["repeat_episode_observations"], 1)
         self.assertTrue(result["oldest_date_played_utc"].startswith("2026-01-09"))
@@ -65,6 +66,25 @@ class CrunchyrollProbeTests(unittest.TestCase):
             probe.get_account_id("secret-token", requester=fail)
         with self.assertRaisesRegex(probe.ProbeError, "History page 1:.*HTTP 400"):
             list(probe.history_pages("private-account", "secret-token", requester=fail))
+
+    def test_boundary_failure_retains_only_safe_observations(self):
+        fixture = json.loads((ROOT / "fixtures/crunchyroll/history_pages.json").read_text())
+        pages = []
+
+        def requester(request):
+            page = int(request.full_url.split("page=")[1].split("&")[0])
+            if page == 3:
+                raise probe.ProbeError("Crunchyroll request failed (HTTP 400)")
+            return {"data": fixture[page - 1]}
+
+        with self.assertRaisesRegex(probe.ProbeError, "History page 3"):
+            for page in probe.history_pages("private-account", "secret-token",
+                                            requester=requester, sleep=lambda _: None):
+                pages.append(page)
+        observed = json.dumps(probe.summarize(pages))
+        self.assertIn('"page_sizes": [2, 1]', observed)
+        self.assertNotIn("private-account", observed)
+        self.assertNotIn("Fabricated episode", observed)
 
 
 if __name__ == "__main__":

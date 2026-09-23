@@ -9,13 +9,14 @@ Marquee tracks shows, movies, anime seasons and episodes. V1 includes episode ch
 ## This release
 
 1. Bootstrap canonical docs and additive Marquee-only database migrations. **Completed 2026-09-23.**
-2. Define stable source mappings, raw record preservation, review queue, run telemetry and checkpoints. **Schema completed; import behavior pending.**
-3. Verify role access, integrity and an unchanged GameDeck baseline before and after application. **Completed for empty Marquee tables; replay and source-data checks await imports.**
+2. Define stable source mappings, raw record preservation, review queue, run telemetry and checkpoints. **Schema completed; Trakt import and replay verified.**
+3. Verify role access, integrity and an unchanged GameDeck baseline before and after application. **Completed for the schema; Muse reported unchanged GameDeck row counts after Trakt import.**
 
 ## Next releases
 
-- Trakt importer, one-time MAL/Jikan seed, sanitized source fixtures and replay tests.
-- Crunchyroll n8n workflow with AniList cache misses and a manual bootstrap.
+- Trakt import and replay completed on 2026-09-23; the manual Actions workflow is unscheduled.
+- One-time MAL XML status/score seed, with unmapped MAL IDs queued for verified mapping.
+- The Crunchyroll runner choice remains open; n8n is still the original proposal, without activation approval.
 - Mapping corrections and real-history validation by Muse.
 
 No PWA, recommendations, MAL write-back, social features, playback, GameDeck rank changes, or live workflow changes belong to this release.

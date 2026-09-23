@@ -2,6 +2,8 @@
 
 Status: Phase 1 schema applied 2026-09-23 as migrations `20260923151159` and `20260923152134`. All new objects are `marquee_*` in `public`. No existing GameDeck object or global default privilege was changed.
 
+Update 2026-09-23: Trakt import and replay succeeded. The Crunchyroll runner choice is open; the n8n references below remain proposed architecture. The MAL importer accepts a private MAL XML export because Jikan's user anime-list endpoint is discontinued. See `scripts/mal-import/README.md`.
+
 | Layer | Tables | Key invariant |
 | --- | --- | --- |
 | Catalog | `marquee_titles`, `marquee_shows`, `marquee_movies`, `marquee_seasons`, `marquee_episodes` | One top-level title is a show or movie; seasons belong to shows and episodes to seasons. |
@@ -23,12 +25,12 @@ Status: Phase 1 schema applied 2026-09-23 as migrations `20260923151159` and `20
 
 ## Adapter transaction rule
 
-Fetch pages completely, persist raw records, resolve mappings or review entries, upsert canonical rows idempotently, then mark the run successful and advance the checkpoint in **one final database transaction**. Phase 3 must add a Marquee-scoped RPC or equivalent transactional adapter for this final step; separate n8n HTTP nodes cannot supply that atomicity. A run with an unexpected page shape, missing page, failed persistence or incomplete count remains failed without a checkpoint advance. A review item is a valid terminal normalization outcome only after raw and review writes succeed. Replays use stable source IDs, dedupe keys and logical event keys.
+Fetch pages completely, persist raw records, resolve mappings or review entries, upsert canonical rows idempotently, then mark the run successful and advance the checkpoint in **one final database transaction**. Any future Crunchyroll runner must supply this atomicity, through a Marquee-scoped RPC or an equivalent transactional adapter. A run with an unexpected page shape, missing page, failed persistence or incomplete count remains failed without a checkpoint advance. A review item is a valid terminal normalization outcome only after raw and review writes succeed. Replays use stable source IDs, dedupe keys and logical event keys.
 
 Before the first real import, validate the Crunchyroll/Trakt overlap window with actual source timestamps. Do not guess that window in this schema migration.
 
 ## Phase 2 and 3 gates
 
-Trakt: paginate history, ratings and watchlist; retain Trakt, TMDb and IMDb IDs, original timestamps and run heartbeat. MAL/Jikan: one-time seed with source precedence. Crunchyroll: cache mapped IDs, throttle AniList on cache misses, back off on HTTP 429, and fail loudly on contract changes. Credentials are supplied at runtime; no live workflow is authored or activated in Phase 1.
+Trakt: paginate history, ratings and watchlist; retain Trakt, TMDb and IMDb IDs, original timestamps and run heartbeat. MAL XML export: one-time seed with source precedence. Crunchyroll: cache mapped IDs, throttle AniList on cache misses, back off on HTTP 429, and fail loudly on contract changes. Credentials are supplied at runtime; no live Crunchyroll workflow is authorized yet.
 
-Phase 2 Trakt script: [`scripts/trakt-sync/README.md`](../scripts/trakt-sync/README.md) documents the offline-tested Python implementation, direct OAuth transport, reviewed non-anime TV ID gate and private Postgres runner requirements. It has not fetched or written live data. The bridge interface has not been provided; source access can be swapped without changing the catalog contract.
+Phase 2 Trakt script: [`scripts/trakt-sync/README.md`](../scripts/trakt-sync/README.md) documents the Python implementation, direct OAuth transport, reviewed non-anime TV ID gate and private Postgres runner requirements. Its first live import and replay succeeded on 2026-09-23. The bridge interface has not been provided; source access can be swapped without changing the catalog contract.

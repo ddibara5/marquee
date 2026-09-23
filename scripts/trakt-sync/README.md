@@ -23,7 +23,7 @@ python scripts/trakt-sync/trakt_sync.py --user-id YOUR_EXISTING_AUTH_UUID --appr
 python scripts/trakt-sync/trakt_sync.py --user-id YOUR_EXISTING_AUTH_UUID --approved-shows PATH_TO_REVIEWED_SHOW_IDS.json
 ```
 
-No live Trakt or Supabase import has been run or approved by this README. Review source counts, mapping policy and overlapping anime observations before the first write. Do not pass real credentials through chat.
+Dave approved the first live import on 2026-09-23. The [first run](https://github.com/ddibara5/marquee/actions/runs/35890598381) and [replay](https://github.com/ddibara5/marquee/actions/runs/35896718778) succeeded. Future runs remain manual. Do not pass real credentials through chat.
 
 ## Replay and operations
 

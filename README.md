@@ -6,4 +6,4 @@ Marquee is an iPhone-first TV, movie, and anime tracker. This repository draft c
 
 The migrations under `supabase/migrations/` were applied to the shared GameDeck Supabase project `eiskobjlvxzwvucgpenk` on 2026-09-23. Read [RUNBOOK.md](docs/RUNBOOK.md) and the [verification report](docs/MIGRATION_VERIFICATION_2026-09-23.md) before subsequent changes. No source credentials belong in this repository.
 
-Status on 2026-09-23: Phase 0 and Phase 1 schema are live and verified. The Phase 2 Trakt importer has been authored and tested offline; catalog and user-state tables are empty, and no source importer or n8n workflow has been run against live data.
+Status on 2026-09-23: Phase 0 and Phase 1 schema are live and verified. Trakt's manual import and replay succeeded ([first run](https://github.com/ddibara5/marquee/actions/runs/35890598381), [replay](https://github.com/ddibara5/marquee/actions/runs/35896718778)). The one-time [MAL importer](scripts/mal-import/README.md) is authored for a private XML export. The Crunchyroll runner choice remains open, with n8n still proposed and no live workflow activated. No PWA or recommendation engine work has started.

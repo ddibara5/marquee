@@ -1,5 +1,9 @@
 # Marquee Project Context
 
+## Current status note (2026-09-23)
+
+Trakt's manual GitHub Actions import and replay succeeded. The workflow remains manual. Jikan v4 discontinued user anime-list reads in 2022, so the one-time MAL seed reads a private MAL XML export with stable MAL IDs. The Crunchyroll runner choice remains open: the original n8n plan below is a proposal, and no workflow is authored or activated without Dave's decision. The repo is the canonical cross-agent record; Dave's later instructions override earlier planning text.
+
 Last updated: 2026-09-22
 Owner: Dave DiBara
 Status: Ingestion kickoff planning

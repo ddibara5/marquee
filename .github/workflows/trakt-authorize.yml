@@ -1,0 +1,27 @@
+name: Trakt authorize Marquee (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marquee-trakt-oauth
+  cancel-in-progress: false
+
+jobs:
+  authorize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Display device code and wait for approval
+        run: python3 -u scripts/trakt-sync/github_authorize.py
+        env:
+          TRAKT_MARQUEE_CLIENT_ID: ${{ secrets.TRAKT_MARQUEE_CLIENT_ID }}
+          TRAKT_MARQUEE_CLIENT_SECRET: ${{ secrets.TRAKT_MARQUEE_CLIENT_SECRET }}
+          GH_TOKEN: ${{ secrets.MARQUEE_SECRETS_WRITE_TOKEN }}

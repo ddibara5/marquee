@@ -27,6 +27,22 @@ Dave approved the first live import on 2026-09-23. The [first run](https://githu
 
 ## Authorize Dave's dedicated Marquee app
 
+### GitHub Actions setup (no local software)
+
+This is the recommended path. In `ddibara5/marquee` repository **Settings > Secrets and variables > Actions**, create these three secrets. Keep the earlier `TRAKT_CLIENT_ID` and `TRAKT_ACCESS_TOKEN` untouched while enrolling the new app:
+
+| Secret | Value |
+| --- | --- |
+| `TRAKT_MARQUEE_CLIENT_ID` | Client ID shown on Dave's dedicated Marquee Trakt developer app. |
+| `TRAKT_MARQUEE_CLIENT_SECRET` | Client secret shown on that same app. |
+| `MARQUEE_SECRETS_WRITE_TOKEN` | A fine-grained GitHub personal access token restricted to **only** `ddibara5/marquee`, with **repository Secrets: Read and write**; no Contents write permission. Store it only in this GitHub Actions secret, never in chat or repo files. Track its expiration. |
+
+After the three secrets exist, Dave manually dispatches **Trakt authorize Marquee (manual)** from the GitHub Actions tab. Open the running **Display device code and wait for approval** step. It displays the Trakt activation URL and a short user code, not an OAuth token. On Trakt, sign into Dave's account, enter the code and approve **Marquee** before the job's 15-minute timeout. On success, the job writes the client ID plus both newly issued OAuth tokens as **one** `TRAKT_OAUTH_BUNDLE` repository secret. GitHub encrypts the secret; the workflow never prints its value. Confirm the job succeeded and the new secret name appears in GitHub Settings.
+
+The manual **Trakt import** workflow prefers that bundle when present and uses the prior Muse credentials only before enrollment. It remains manual and does not refresh the bundle yet. Do not dispatch concurrent Trakt runs or enable a schedule until the single-use refresh token rotation has been built and verified. The fine-grained GitHub token can write *any* Actions secret in this repo, so keep its expiration short and rotate it under operator control. If enrollment fails after Trakt authorization but before GitHub stores the bundle, dispatch authorization again for a new device code. Never post OAuth tokens or screenshots of the app credentials.
+
+### Local fallback
+
 On Dave's trusted computer, install [GitHub CLI](https://cli.github.com/) and authenticate as a repository owner with `gh auth login`. Run `gh auth status` and verify the active account can edit `ddibara5/marquee` Actions secrets. Download the latest repo or clone it locally, then run:
 
 ```sh
@@ -35,7 +51,7 @@ python3 scripts/trakt-sync/authorize.py
 
 Enter the dedicated Marquee app's client ID and client secret into the local hidden prompts. Open the Trakt verification URL and enter the short code that the helper prints; approve **Marquee** under Dave's Trakt account. The helper sends the credentials and newly issued user access and refresh tokens to the four **repository Actions secrets** via `gh secret set`. It does not put secrets in shell history, code, a file, or terminal output. Do not upload screenshots of credential pages or run the existing manual importer while secrets are being replaced. If a GitHub secret write fails, leave the workflow manual and rerun device authorization rather than trying to recover a partially used token.
 
-The resulting `TRAKT_CLIENT_ID` and `TRAKT_ACCESS_TOKEN` pair allows manual imports for the token's current lifetime. `TRAKT_CLIENT_SECRET` and `TRAKT_REFRESH_TOKEN` are stored for a future refresh runner; **this helper does not enable automatic rotation, and the current importer does not read those two secrets. Do not add a schedule yet.** Trakt refresh tokens are single-use: any future refresh must securely persist both replacement tokens before running the importer. The operator should test a read-only dry run and one replay after authorization. Leave the old Muse Trakt connection intact until the new app is verified.
+The local fallback writes the legacy `TRAKT_CLIENT_ID` and `TRAKT_ACCESS_TOKEN` pair for a manual import and stores `TRAKT_CLIENT_SECRET` and `TRAKT_REFRESH_TOKEN`. The GitHub Actions flow above instead uses one bundle for Marquee and keeps the legacy pair as a fallback until migration is verified. **Neither path enables automatic rotation. Do not add a schedule yet.** Trakt refresh tokens are single-use: any future refresh must securely persist both replacement tokens before running the importer. The operator should test a read-only dry run and one replay after authorization. Leave the old Muse Trakt connection intact until the new app is verified.
 
 ## Replay and operations
 

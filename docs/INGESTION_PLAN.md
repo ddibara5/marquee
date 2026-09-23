@@ -1,6 +1,6 @@
 # Ingestion schema and contract
 
-Status: exact proposed Phase 1 schema, authored but unapplied. All new objects are `marquee_*` in `public`. No existing GameDeck object or global default privilege is changed.
+Status: Phase 1 schema applied 2026-09-23 as migrations `20260923151159` and `20260923152134`. All new objects are `marquee_*` in `public`. No existing GameDeck object or global default privilege was changed.
 
 | Layer | Tables | Key invariant |
 | --- | --- | --- |

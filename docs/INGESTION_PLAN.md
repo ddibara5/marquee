@@ -2,9 +2,9 @@
 
 Status: Phase 1 schema applied 2026-09-23 as migrations `20260923151159` and `20260923152134`. All new objects are `marquee_*` in `public`. No existing GameDeck object or global default privilege was changed.
 
-Update 2026-09-23: Trakt import and replay succeeded. The Crunchyroll runner choice is open; the n8n references below remain proposed architecture. The MAL importer accepts a private MAL XML export because Jikan's user anime-list endpoint is discontinued. See `scripts/mal-import/README.md`.
+Update 2026-09-23: Trakt import and replay succeeded. Dave's anime statuses and scores live on anilist.co through MyAniList for iOS; no MAL account exists, and the unused MAL importer was removed. The next adapter seeds the AniList list using stable media IDs and preserves account score format. The Crunchyroll runner choice is open; the n8n references below remain proposed architecture.
 
-Dave confirmed current anime statuses and scores live on anilist.co through the MyAniList iOS client. The MAL exporter is parked; implement an AniList list seed after checking list visibility or private authorization. Earlier MAL/Jikan references below are historical planning notes.
+Before the AniList seed can write user state, author and verify a forward, Marquee-only migration allowing `source='anilist'` in `marquee_statuses` and `marquee_ratings`. Their applied check constraints currently allow MAL but exclude AniList. Do not rewrite the applied migration or touch GameDeck. Determine the actual AniList score format and list visibility before writing the adapter. Leave the historical unused MAL values in the applied schema until there is a separately reviewed cleanup.
 
 | Layer | Tables | Key invariant |
 | --- | --- | --- |
@@ -18,7 +18,7 @@ Dave confirmed current anime statuses and scores live on anilist.co through the 
 - UUID canonical IDs, text stable source IDs. Provider IDs never become primary keys. Catalog IDs are immutable once assigned.
 - `marquee_source_mappings` uses one typed target FK column at a time. This enforces real FK integrity despite multiple canonical entity types.
 - Anime AniList entries normally map to `season`; franchise overrides explicitly map a stable source identity to a `show` title. Episode number and season number can be unknown; source IDs still prevent duplicates.
-- Statuses and ratings accept either a title or a season target. This retains distinct MAL anime season scores. Watchlist stays at title level.
+- Statuses and ratings accept either a title or a season target. This retains distinct AniList anime season scores. Watchlist stays at title level.
 - Canonical history stores one row per logical viewing and a stable logical key. `marquee_watch_history_sources` links every source event by stable ID. Raw payloads remain available even before mapping.
 - Raw payloads may be re-fetched and hashed; `dedupe_key` is stable across replays, while a changed payload updates the stored version during a future adapter phase. Sensitive tokens and request headers must never be stored in payload.
 - Sync runs are one row per execution: an initial `running` row can transition once to a terminal status. Ingestion cannot delete run rows; an Auth user deletion may cascade to remove personal records.
@@ -33,6 +33,6 @@ Before the first real import, validate the Crunchyroll/Trakt overlap window with
 
 ## Phase 2 and 3 gates
 
-Trakt: paginate history, ratings and watchlist; retain Trakt, TMDb and IMDb IDs, original timestamps and run heartbeat. MAL XML export: one-time seed with source precedence. Crunchyroll: cache mapped IDs, throttle AniList on cache misses, back off on HTTP 429, and fail loudly on contract changes. Credentials are supplied at runtime; no live Crunchyroll workflow is authorized yet.
+Trakt: paginate history, ratings and watchlist; retain Trakt, TMDb and IMDb IDs, original timestamps and run heartbeat. AniList account: fetch the complete anime list, retain stable media/list-entry IDs and source score format, seed statuses and scores with source precedence. Crunchyroll: cache mapped IDs, throttle AniList on cache misses, back off on HTTP 429, and fail loudly on contract changes. Credentials are supplied at runtime; no live Crunchyroll workflow is authorized yet.
 
 Phase 2 Trakt script: [`scripts/trakt-sync/README.md`](../scripts/trakt-sync/README.md) documents the Python implementation, direct OAuth transport, reviewed non-anime TV ID gate and private Postgres runner requirements. Its first live import and replay succeeded on 2026-09-23. The bridge interface has not been provided; source access can be swapped without changing the catalog contract.

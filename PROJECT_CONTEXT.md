@@ -2,7 +2,7 @@
 
 ## Current status note (2026-09-23)
 
-Trakt's manual GitHub Actions import and replay succeeded. The workflow remains manual. Dave confirmed that his anime status and score data lives on anilist.co through the MyAniList iOS app. MyAniList is an AniList client; MyAnimeList (MAL) is a different service. The MAL XML importer is parked and must not be run for his current data. Build an AniList list seed using stable AniList media IDs; list visibility or private authorization must be checked before fetching. The Crunchyroll runner choice remains open: the original n8n plan below is a proposal, and no workflow is authored or activated without Dave's decision. The repo is the canonical cross-agent record; Dave's later instructions override earlier planning text.
+Trakt's manual GitHub Actions import and replay succeeded. The workflow remains manual. Dave confirmed that his anime statuses and scores live on anilist.co through MyAniList for iOS; he has no MyAnimeList account. MAL import work was removed from the repo without changing the already applied additive schema. The next adapter is the AniList account seed using stable AniList media IDs, followed by ongoing Crunchyroll episode history. The Crunchyroll runner choice remains open: n8n is a proposal, and no workflow is authored or activated without Dave's decision. The repo is the canonical cross-agent record; Dave's later instructions override earlier planning text.
 
 Last updated: 2026-09-22
 Owner: Dave DiBara
@@ -11,7 +11,7 @@ Canonical future repo: `ddibara5/marquee`
 
 ## Read this first
 
-Marquee is an iPhone-first PWA for TV, movies, and anime. Version 1 is tracking-first: episode check-ins, season progress, MAL-style statuses, a unified watchlist, detail pages, and where-to-watch. Recommendation features come after ingestion and tracking are proven.
+Marquee is an iPhone-first PWA for TV, movies, and anime. Version 1 is tracking-first: episode check-ins, season progress, anime list statuses, a unified watchlist, detail pages, and where-to-watch. Recommendation features come after ingestion and tracking are proven.
 
 The current phase is not the PWA. The current phase is to build a durable ingestion and identity layer that can survive source changes, mapping corrections, retries, and future UI work without rewriting the data model.
 
@@ -39,7 +39,7 @@ The GitHub repo is the canonical cross-agent source of truth once Dave creates i
 ### Not in kickoff
 - PWA implementation
 - Recommendation engine changes
-- MAL write-back
+- AniList write-back
 - Social features
 - Playback
 - Changes to GameDeck ranking tables
@@ -61,7 +61,6 @@ Important: using the same Supabase Auth project gives both apps the same user id
 
 ```text
 Trakt --------\
-MAL -----------\
 Crunchyroll ----> Raw source records -> Identity and mapping -> Canonical Marquee data
 AniList --------/        |                    |                       |
 TMDb -----------/        v                    v                       v
@@ -99,15 +98,9 @@ Primary anime identity and relationship source for:
 - Airing schedules
 - Anime metadata
 - Franchise relation graph
+- Dave's existing anime list statuses and scores (one-time seed)
 
 AniList relations are used to roll season entries into franchise-level shows. Auto-grouping must use explicit rules and a relation allowlist. Ambiguous or unusual graphs go to review rather than being guessed.
-
-### MAL via Jikan
-One-time seed source only:
-- Statuses
-- Scores
-
-MAL is not an ongoing synchronization source and must never overwrite newer Marquee, Crunchyroll, or Trakt state after the seed import.
 
 ### TMDb
 Future metadata and where-to-watch source:
@@ -193,7 +186,7 @@ The normalization layer must define deterministic overlap handling before the fi
 
 Do not conflate status and rating.
 
-MAL scores and Trakt ratings need a dedicated rating model. MAL status data can seed canonical status only when no higher-precedence state exists.
+AniList list scores and Trakt ratings use the dedicated rating model. AniList list statuses seed canonical state only when no newer or manually locked state exists.
 
 ## Operational tables
 
@@ -369,16 +362,16 @@ The script must:
 
 For ongoing sync, the transport can remain the existing bridge during v1, but the Marquee data contract must not depend on that bridge so the transport can be replaced later without a schema rewrite.
 
-## MAL import
+## AniList list seed
 
 One-time script only.
 
 The script must:
-- preserve MAL IDs
-- map MAL entries to canonical titles or anime seasons
+- preserve AniList media and list-entry IDs
+- map AniList anime entries to canonical seasons with stable IDs
 - import statuses as seed state only
 - import scores into the rating model
-- treat score 0 or equivalent as unrated
+- normalize AniList's account-specific score format and treat unrated entries as unrated
 - preserve the original source payload for audit/reprocessing
 - never become a scheduled workflow
 
@@ -422,11 +415,11 @@ Recommended initial structure:
     marquee-crunchyroll-sync.json
   scripts/
     trakt-sync/
-    mal-import/
+    anilist-import/
   fixtures/
     crunchyroll/
     trakt/
-    mal/
+    anilist/
   tests/
 ```
 
@@ -456,7 +449,7 @@ Do not leave the only copy of scope in a Muse-local `~/workspace/...` path. Comm
 
 ### Phase 2: Import adapters
 - Author Trakt sync script
-- Author MAL one-time import
+- Author AniList one-time list seed
 - Unit-test normalization against fixtures
 - Verify pagination, retry, and idempotency behavior
 
@@ -473,7 +466,7 @@ Muse:
 - wires credentials
 - imports workflow inactive
 - runs Trakt import
-- runs MAL import
+- runs AniList list seed
 - performs first manual Crunchyroll bootstrap
 - verifies row counts and sync telemetry
 
@@ -515,7 +508,7 @@ Kickoff is complete when:
 - Every imported source record retains provenance
 - Stable source IDs drive mapping
 - Trakt history, ratings, and watchlist are imported
-- MAL is imported once as seed data
+- AniList statuses and scores are seeded once
 - Crunchyroll workflow completes a real manual bootstrap
 - A second equivalent run is idempotent
 - Failed-run watermark behavior is verified

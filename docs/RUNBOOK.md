@@ -10,6 +10,6 @@ The foundation and scoped advisor follow-up were applied 2026-09-23 as migration
 
 Importer authors must put the final successful run update and watermark update in one transaction after persistence verification. A failed run keeps the previous watermark. Unmapped identities are written to raw and review before successful completion. Source credentials stay in a secure runtime.
 
-Trakt's first import and replay completed 2026-09-23. The MAL importer at `scripts/mal-import/` is a one-time private XML seed; verify existing MAL ID mappings before execution and rerun the identical export after approved mappings are added. The Crunchyroll runner choice remains open; n8n is a proposal, not an approved activation.
+Trakt's first import and replay completed 2026-09-23. Dave has no MAL account; AniList is his anime list source. The MAL importer was removed, and the AniList seed has not run. The Crunchyroll runner choice remains open; n8n is a proposal, not an approved activation. The existing migration includes unused MAL enum values; removing them from a shared live project is outside this scoped cleanup.
 
 Operator handoff: report applied version, table counts, role verification, GameDeck baseline diff, advisors, unmapped count, replay outcome and current watermarks. Do not call a repo commit or unapplied SQL live.

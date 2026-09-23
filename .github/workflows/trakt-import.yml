@@ -2,10 +2,23 @@ name: Trakt import (manual)
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate Trakt pages without database writes
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marquee-trakt-oauth
+  cancel-in-progress: false
 
 jobs:
   import:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -14,12 +27,17 @@ jobs:
       - name: Install pinned requirements
         run: pip install "psycopg[binary]==3.3.6"
       - name: Run Trakt import
-        run: >-
-          python3 scripts/trakt-sync/run_with_oauth.py
-          --user-id c566e7e0-880a-430d-85df-c40484144a91
-          --approved-shows scripts/trakt-sync/approved_non_anime_shows.json
+        shell: bash
+        run: |
+          args=(--user-id c566e7e0-880a-430d-85df-c40484144a91
+                --approved-shows scripts/trakt-sync/approved_non_anime_shows.json)
+          if [[ "$DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
+          python3 scripts/trakt-sync/run_with_oauth.py "${args[@]}"
         env:
-          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
-          TRAKT_ACCESS_TOKEN: ${{ secrets.TRAKT_ACCESS_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
           TRAKT_OAUTH_BUNDLE: ${{ secrets.TRAKT_OAUTH_BUNDLE }}
+          TRAKT_MARQUEE_CLIENT_ID: ${{ secrets.TRAKT_MARQUEE_CLIENT_ID }}
+          TRAKT_MARQUEE_CLIENT_SECRET: ${{ secrets.TRAKT_MARQUEE_CLIENT_SECRET }}
+          TRAKT_MARQUEE_REDIRECT_URI: ${{ vars.TRAKT_MARQUEE_REDIRECT_URI }}
+          GH_TOKEN: ${{ secrets.MARQUEE_SECRETS_WRITE_TOKEN }}
           MARQUEE_DATABASE_URL: ${{ secrets.MARQUEE_DATABASE_URL }}

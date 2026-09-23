@@ -118,6 +118,9 @@ class TraktHTTP:
             "trakt-api-version": "2",
             "Authorization": "Bearer " + self.access_token,
             "Content-Type": "application/json",
+            # Trakt sits behind Cloudflare, which 403s (error 1010) requests
+            # without a recognizable User-Agent. Verified 2026-09-23.
+            "User-Agent": "MarqueeTraktSync/1.0 (github.com/ddibara5/marquee)",
         })
         for attempt in range(5):
             try:

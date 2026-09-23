@@ -16,7 +16,7 @@ Both operations returned success and were read back from the migration ledger. T
 - Ran the initial migration in a disposable PostgreSQL runtime before production. All 85 statements completed. Two fixture users demonstrated owner-only status reads/writes, cross-owner insert denial, anonymous grant denial and service-role insert grants.
 - Ran the follow-up in the same disposable runtime. Verified seven deny policies and ten indexes.
 - In production, all 16 Marquee tables have RLS enabled, anonymous SELECT is denied, and service-role INSERT is granted. Authenticated SELECT is granted only to catalog and intended user-state tables; operational tables remain service-only.
-- The GameDeck `games`, `play_events`, `game_ranks`, and `rank_comparisons` access grants, RLS flags and policies matched the before snapshot. Their row counts remained `518`, `552`, `53`, and `154` across the initial migration.
+- The GameDeck `games`, `play_events`, `game_ranks`, and `rank_comparisons` access grants, RLS flags and policies matched the before snapshot after both migrations. Their row counts remained `518`, `552`, `53`, and `154`.
 - No PWA, source importer or n8n workflow was changed or run.
 
 ## Advisors and limits

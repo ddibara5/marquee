@@ -1,0 +1,28 @@
+name: Crunchyroll import integrity gate (read-only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marquee-crunchyroll-import-gate
+  cancel-in-progress: false
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Postgres driver
+        run: pip install "psycopg[binary]==3.3.6"
+      - name: Verify complete source coverage and current mappings
+        run: python3 scripts/crunchyroll/import_gate.py
+        env:
+          CRUNCHYROLL_ETP_RT: ${{ secrets.CRUNCHYROLL_ETP_RT }}
+          MARQUEE_DATABASE_URL: ${{ secrets.MARQUEE_DATABASE_URL }}

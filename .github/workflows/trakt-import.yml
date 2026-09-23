@@ -1,6 +1,8 @@
-name: Trakt import (manual)
+name: Trakt sync (daily and manual)
 
 on:
+  schedule:
+    - cron: "17 11 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -38,8 +40,8 @@ jobs:
           if [[ "$DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
           python3 scripts/trakt-sync/run_with_oauth.py "${args[@]}"
         env:
-          DRY_RUN: ${{ inputs.dry_run }}
-          REFRESH_NOW: ${{ inputs.refresh_now }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          REFRESH_NOW: ${{ github.event_name == 'workflow_dispatch' && inputs.refresh_now }}
           TRAKT_OAUTH_BUNDLE: ${{ secrets.TRAKT_OAUTH_BUNDLE }}
           TRAKT_MARQUEE_CLIENT_ID: ${{ secrets.TRAKT_MARQUEE_CLIENT_ID }}
           TRAKT_MARQUEE_CLIENT_SECRET: ${{ secrets.TRAKT_MARQUEE_CLIENT_SECRET }}

@@ -1,0 +1,28 @@
+name: Crunchyroll AniList catalog overlap (manual, read-only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marquee-crunchyroll-catalog-overlap
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Postgres driver
+        run: pip install "psycopg[binary]==3.3.6"
+      - name: Count AniList catalog candidates without database writes
+        run: python3 scripts/crunchyroll/catalog_overlap_probe.py
+        env:
+          CRUNCHYROLL_ETP_RT: ${{ secrets.CRUNCHYROLL_ETP_RT }}
+          MARQUEE_DATABASE_URL: ${{ secrets.MARQUEE_DATABASE_URL }}

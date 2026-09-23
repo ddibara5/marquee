@@ -49,6 +49,14 @@ def request_json(request, *, opener=urlopen, sleep=time.sleep):
     raise AssertionError("retry loop exhausted")
 
 
+def request_stage(request, stage, *, requester):
+    """Identify a failed step without logging its URL, headers, or response."""
+    try:
+        return requester(request)
+    except ProbeError as exc:
+        raise ProbeError(f"{stage}: {exc}") from None
+
+
 def bearer_from_cookie(cookie, *, requester=request_json):
     if not cookie or "\r" in cookie or "\n" in cookie:
         raise ProbeError("CRUNCHYROLL_ETP_RT is missing or invalid")
@@ -63,7 +71,7 @@ def bearer_from_cookie(cookie, *, requester=request_json):
                       headers={"Authorization": "Basic " + basic, "Cookie": "etp_rt=" + cookie,
                                "Content-Type": "application/x-www-form-urlencoded",
                                "User-Agent": "MarqueeHistoryProbe/1.0"})
-    payload = requester(request)
+    payload = request_stage(request, "Token exchange", requester=requester)
     token = payload.get("access_token") if isinstance(payload, dict) else None
     if not isinstance(token, str) or not token:
         raise ProbeError("Crunchyroll authentication response changed shape")
@@ -74,7 +82,7 @@ def get_account_id(token, *, requester=request_json):
     request = Request(BASE + "/accounts/v1/me",
                       headers={"Authorization": "Bearer " + token,
                                "User-Agent": "MarqueeHistoryProbe/1.0"})
-    payload = requester(request)
+    payload = request_stage(request, "Account lookup", requester=requester)
     account_id = payload.get("account_id") if isinstance(payload, dict) else None
     if not isinstance(account_id, str) or not account_id:
         raise ProbeError("Crunchyroll account response changed shape")
@@ -93,7 +101,7 @@ def history_pages(account_id, token, *, requester=request_json, sleep=time.sleep
         request = Request(url, headers={"Authorization": "Bearer " + token,
                                        "Accept": "application/json",
                                        "User-Agent": "MarqueeHistoryProbe/1.0"})
-        payload = requester(request)
+        payload = request_stage(request, f"History page {page}", requester=requester)
         if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
             raise ProbeError("Crunchyroll history response changed shape")
         items = payload["data"]

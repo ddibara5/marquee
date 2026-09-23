@@ -55,6 +55,16 @@ class CrunchyrollProbeTests(unittest.TestCase):
                 req, opener=lambda *args, **kwargs: requester(req)))
         self.assertNotIn("private-cookie", str(raised.exception))
         self.assertNotIn("private-response", str(raised.exception))
+        self.assertIn("Token exchange", str(raised.exception))
+
+    def test_request_stages_are_safe_and_specific(self):
+        def fail(_):
+            raise probe.ProbeError("Crunchyroll request failed (HTTP 400)")
+
+        with self.assertRaisesRegex(probe.ProbeError, "Account lookup:.*HTTP 400"):
+            probe.get_account_id("secret-token", requester=fail)
+        with self.assertRaisesRegex(probe.ProbeError, "History page 1:.*HTTP 400"):
+            list(probe.history_pages("private-account", "secret-token", requester=fail))
 
 
 if __name__ == "__main__":

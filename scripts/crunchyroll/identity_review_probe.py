@@ -16,6 +16,7 @@ def identity_review(pages, seasons=()):
     counts = Counter()
     episodes_by_season_number = defaultdict(set)
     panels_by_identifier = defaultdict(set)
+    identifier_references = defaultdict(set)
     panels_by_season = defaultdict(set)
     audio_by_season_number = defaultdict(set)
     names_by_season = defaultdict(lambda: {"show": set(), "season": set()})
@@ -40,6 +41,9 @@ def identity_review(pages, seasons=()):
             identifier = metadata.get("identifier")
             if isinstance(identifier, str) and identifier:
                 panels_by_identifier[identifier].add(panel_id)
+                identifier_references[identifier].add((panel_id, series_id, season_id,
+                                                       str(metadata.get("episode_number")),
+                                                       str(metadata.get("audio_locale"))))
                 counts["observations_with_identifier"] += 1
             value = metadata.get("episode_number")
             if type(value) is int and value > 0:
@@ -59,12 +63,14 @@ def identity_review(pages, seasons=()):
                   if len(panel_ids) > 1}
     by_season_title, by_show_title = season_title_indexes(seasons)
     candidate_counts = Counter()
+    source_seasons_by_candidate = defaultdict(set)
     for season, names in names_by_season.items():
         season_matches = set().union(*(by_season_title[name] for name in names["season"] if name))
         show_matches = set().union(*(by_show_title[name] for name in names["show"] if name))
         candidates = season_matches & show_matches if season_matches & show_matches else season_matches | show_matches
         if len(candidates) == 1 and not (season_matches and show_matches and not season_matches & show_matches):
             candidate_counts["one_title_candidate"] += 1
+            source_seasons_by_candidate[next(iter(candidates))].add(season)
             if any(key[:2] == season for key in collisions):
                 candidate_counts["one_candidate_with_episode_number_collision"] += 1
             if len([key for key in episodes_by_season_number if key[:2] == season]) < len(panels_by_season[season]):
@@ -82,11 +88,22 @@ def identity_review(pages, seasons=()):
             "source_seasons_with_number_collisions": len({key[:2] for key in collisions}),
             "observations_with_identifier": counts["observations_with_identifier"],
             "identifiers_shared_by_multiple_panel_ids": sum(len(ids) > 1 for ids in panels_by_identifier.values()),
+            "shared_identifiers_across_source_seasons": sum(
+                len({ref[2] for ref in refs}) > 1 for refs in identifier_references.values() if len(refs) > 1),
+            "shared_identifiers_across_series": sum(
+                len({ref[1] for ref in refs}) > 1 for refs in identifier_references.values() if len(refs) > 1),
+            "shared_identifiers_with_different_episode_numbers": sum(
+                len({ref[3] for ref in refs}) > 1 for refs in identifier_references.values() if len(refs) > 1),
+            "shared_identifiers_with_different_audio_locales": sum(
+                len({ref[4] for ref in refs}) > 1 for refs in identifier_references.values() if len(refs) > 1),
             "observations_with_audio_locale": counts["observations_with_audio_locale"],
             "season_episode_numbers_with_multiple_audio_locales": sum(
                 len(locales) > 1 for locales in audio_by_season_number.values()),
             "anilist_seasons_available": len(seasons),
             "one_title_candidate_source_seasons": candidate_counts["one_title_candidate"],
+            "distinct_anilist_targets_for_one_title_candidate": len(source_seasons_by_candidate),
+            "anilist_targets_with_multiple_candidate_source_seasons": sum(
+                len(source_seasons) > 1 for source_seasons in source_seasons_by_candidate.values()),
             "one_candidate_with_episode_number_collision": candidate_counts["one_candidate_with_episode_number_collision"],
             "one_candidate_with_missing_or_duplicate_numbers": candidate_counts["one_candidate_with_missing_or_duplicate_numbers"],
             "note": "Source IDs are stable within this feed; episode-number collisions are review evidence, not version mappings."}

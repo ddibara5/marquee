@@ -27,6 +27,8 @@ class IdentityReviewTests(unittest.TestCase):
         self.assertEqual(result["no_episode_metadata"], 1)
         self.assertEqual(result["season_episode_numbers_with_multiple_panel_ids"], 1)
         self.assertEqual(result["identifiers_shared_by_multiple_panel_ids"], 1)
+        self.assertEqual(result["shared_identifiers_across_source_seasons"], 0)
+        self.assertEqual(result["shared_identifiers_with_different_audio_locales"], 1)
         self.assertEqual(result["season_episode_numbers_with_multiple_audio_locales"], 1)
         self.assertNotIn("private-", json.dumps(result))
 

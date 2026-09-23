@@ -90,6 +90,25 @@ class GitHubTraktTests(unittest.TestCase):
             self.assertNotIn("GH_TOKEN", child)
             self.assertNotIn("TRAKT_OAUTH_BUNDLE", child)
 
+    def test_explicit_refresh_rotates_recent_bundle_before_import(self):
+        bundle = json.dumps({"client_id": "id", "access_token": "old",
+                             "refresh_token": "refresh",
+                             "issued_at": datetime.now(timezone.utc).isoformat()})
+        environment = {"TRAKT_OAUTH_BUNDLE": bundle, "TRAKT_MARQUEE_CLIENT_ID": "id",
+                       "TRAKT_MARQUEE_CLIENT_SECRET": "private",
+                       "TRAKT_MARQUEE_REDIRECT_URI": "uri", "GH_TOKEN": "private",
+                       "REFRESH_NOW": "true"}
+        updated = dict(json.loads(bundle), access_token="new")
+        with patch.dict(run_with_oauth.os.environ, environment, clear=True), \
+             patch.object(run_with_oauth, "refresh", return_value=updated) as refresh, \
+             patch.object(run_with_oauth, "persist") as persist, \
+             patch.object(run_with_oauth.subprocess, "run") as importer:
+            importer.return_value.returncode = 0
+            self.assertEqual(run_with_oauth.main(), 0)
+            refresh.assert_called_once()
+            persist.assert_called_once_with(updated)
+            self.assertEqual(importer.call_args.kwargs["env"]["TRAKT_ACCESS_TOKEN"], "new")
+
     def test_bundle_is_single_secret_sent_only_on_stdin(self):
         calls = []
 

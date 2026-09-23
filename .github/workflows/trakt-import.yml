@@ -7,6 +7,10 @@ on:
         description: Validate Trakt pages without database writes
         type: boolean
         default: true
+      refresh_now:
+        description: Rotate Trakt tokens now to verify refresh (requires redirect URI variable)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -35,6 +39,7 @@ jobs:
           python3 scripts/trakt-sync/run_with_oauth.py "${args[@]}"
         env:
           DRY_RUN: ${{ inputs.dry_run }}
+          REFRESH_NOW: ${{ inputs.refresh_now }}
           TRAKT_OAUTH_BUNDLE: ${{ secrets.TRAKT_OAUTH_BUNDLE }}
           TRAKT_MARQUEE_CLIENT_ID: ${{ secrets.TRAKT_MARQUEE_CLIENT_ID }}
           TRAKT_MARQUEE_CLIENT_SECRET: ${{ secrets.TRAKT_MARQUEE_CLIENT_SECRET }}

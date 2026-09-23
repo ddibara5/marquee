@@ -85,7 +85,7 @@ def main():
         if data["client_id"] != os.environ.get("TRAKT_MARQUEE_CLIENT_ID", ""):
             raise RefreshError("Marquee client ID differs from token bundle; no import was run")
         current = datetime.now(timezone.utc)
-        if due_for_refresh(data, now=current):
+        if due_for_refresh(data, now=current) or os.environ.get("REFRESH_NOW") == "true":
             if not os.environ.get("GH_TOKEN"):
                 raise RefreshError("Secrets-write token is missing; no import was run")
             data = refresh(data, os.environ.get("TRAKT_MARQUEE_CLIENT_SECRET", ""),
@@ -98,7 +98,7 @@ def main():
 
     env = os.environ.copy()
     env["TRAKT_CLIENT_ID"], env["TRAKT_ACCESS_TOKEN"] = data["client_id"], data["access_token"]
-    for name in ("TRAKT_OAUTH_BUNDLE", "GH_TOKEN", "TRAKT_MARQUEE_CLIENT_SECRET"):
+    for name in ("TRAKT_OAUTH_BUNDLE", "GH_TOKEN", "TRAKT_MARQUEE_CLIENT_SECRET", "REFRESH_NOW"):
         env.pop(name, None)
     return subprocess.run([sys.executable, "scripts/trakt-sync/trakt_sync.py", *sys.argv[1:]],
                           env=env, check=False).returncode

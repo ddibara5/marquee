@@ -1,6 +1,6 @@
 # Scope — ingestion kickoff
 
-This is the canonical scope document in the repository, reconciled against `PROJECT_CONTEXT.md` on 2026-09-23. The earlier handoff mentioned a separate Muse-local `~/workspace/your_files/marquee-scope.md`; it was not attached or present in this workspace. If that original is supplied later, compare it with this file and preserve the decisions in `PROJECT_CONTEXT.md` unless Dave overrides them.
+This is a working scope summary derived from [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md), the sole canonical project context. Dave's later instructions can override it. A separate Muse scope document is not required.
 
 ## Product
 

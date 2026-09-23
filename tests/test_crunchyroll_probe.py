@@ -86,6 +86,23 @@ class CrunchyrollProbeTests(unittest.TestCase):
         self.assertNotIn("private-account", observed)
         self.assertNotIn("Fabricated episode", observed)
 
+    def test_boundary_checks_distinguish_page_and_offset_limits(self):
+        def requester(request):
+            from urllib.parse import parse_qs, urlsplit
+            query = parse_qs(urlsplit(request.full_url).query)
+            self.assertEqual(query["page_size"], ["20"])
+            page = int(query["page"][0])
+            if page == 51:
+                raise probe.ProbeError("Crunchyroll request failed (HTTP 400)")
+            return {"data": [{"id": "private-event"}] * 20}
+
+        checks = probe.boundary_checks("private-account", "secret-token", requester=requester)
+        self.assertEqual(checks, [{"page": 11, "page_size": 20, "status": "ok",
+                                   "records": 20},
+                                  {"page": 51, "page_size": 20, "status": "http_400"}])
+        self.assertNotIn("private-event", json.dumps(checks))
+        self.assertNotIn("secret-token", json.dumps(checks))
+
 
 if __name__ == "__main__":
     unittest.main()

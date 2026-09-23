@@ -89,21 +89,46 @@ def get_account_id(token, *, requester=request_json):
     return account_id, sorted(payload)
 
 
+def history_request(account_id, token, page, page_size=PAGE_SIZE):
+    url = (BASE + "/content/v2/" + account_id + "/watch-history?" +
+           urlencode({"page": page, "page_size": page_size, "locale": "en-US",
+                      "preferred_audio_language": "en-US"}))
+    return Request(url, headers={"Authorization": "Bearer " + token,
+                                 "Accept": "application/json",
+                                 "User-Agent": "MarqueeHistoryProbe/1.0"})
+
+
+def boundary_checks(account_id, token, *, requester=request_json):
+    """Check page-number versus offset limits without emitting private records."""
+    results = []
+    for page in (11, 51):
+        request = history_request(account_id, token, page, page_size=20)
+        try:
+            payload = request_stage(request, f"Boundary page {page}", requester=requester)
+            if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
+                results.append({"page": page, "page_size": 20, "status": "changed_shape"})
+            else:
+                results.append({"page": page, "page_size": 20,
+                                "status": "ok", "records": len(payload["data"])})
+        except ProbeError as exc:
+            # Only report our own fixed error categories; never echo a response.
+            status = "http_400" if str(exc).endswith("(HTTP 400)") else "request_failed"
+            results.append({"page": page, "page_size": 20, "status": status})
+    return results
+
+
 def history_pages(account_id, token, *, requester=request_json, sleep=time.sleep,
-                  max_pages=MAX_PAGES):
+                  max_pages=MAX_PAGES, envelope_keys=None):
     if not isinstance(account_id, str) or not account_id or "/" in account_id:
         raise ProbeError("Invalid account identifier")
     seen_pages = set()
     for page in range(1, max_pages + 1):
-        url = (BASE + "/content/v2/" + account_id + "/watch-history?" +
-               urlencode({"page": page, "page_size": PAGE_SIZE, "locale": "en-US",
-                          "preferred_audio_language": "en-US"}))
-        request = Request(url, headers={"Authorization": "Bearer " + token,
-                                       "Accept": "application/json",
-                                       "User-Agent": "MarqueeHistoryProbe/1.0"})
+        request = history_request(account_id, token, page)
         payload = request_stage(request, f"History page {page}", requester=requester)
         if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
             raise ProbeError("Crunchyroll history response changed shape")
+        if envelope_keys is not None:
+            envelope_keys.update(payload)
         items = payload["data"]
         if not items:
             return
@@ -181,18 +206,25 @@ def summarize(pages, *, account_keys=None):
 
 def main():
     pages = []
+    envelope_keys = set()
     try:
         token = bearer_from_cookie(os.environ.get("CRUNCHYROLL_ETP_RT", ""))
         account_id, keys = get_account_id(token)
-        for page in history_pages(account_id, token):
+        for page in history_pages(account_id, token, envelope_keys=envelope_keys):
             pages.append(page)
         result = summarize(pages, account_keys=keys)
+        result["history_envelope_keys"] = sorted(envelope_keys)
     except ProbeError as exc:
         if pages:
             # A boundary error must remain a failure, but coverage observed so far
             # can help distinguish a short final page from a server-side page cap.
+            observed = summarize(pages, account_keys=keys)
+            observed["history_envelope_keys"] = sorted(envelope_keys)
             print(json.dumps({"coverage": "incomplete", "observed":
-                              summarize(pages)}, sort_keys=True))
+                              observed}, sort_keys=True))
+            if str(exc).startswith("History page 11:") and "(HTTP 400)" in str(exc):
+                print(json.dumps({"boundary_checks": boundary_checks(account_id, token)},
+                                 sort_keys=True))
         print(f"Crunchyroll probe failed: {exc}", file=sys.stderr)
         return 1
     print(json.dumps(result, sort_keys=True))

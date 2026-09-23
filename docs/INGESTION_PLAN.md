@@ -2,11 +2,11 @@
 
 Status: Phase 1 schema applied 2026-09-23 as migrations `20260923151159` and `20260923152134`. All new objects are `marquee_*` in `public`. No existing GameDeck object or global default privilege was changed.
 
-Update 2026-09-23: Trakt import and replay succeeded. Dave's anime statuses and scores live on anilist.co through MyAniList for iOS; no MAL account exists, and the unused MAL importer was removed. The next adapter seeds the AniList list using stable media IDs and preserves account score format. The Crunchyroll runner choice is open; the n8n references below remain proposed architecture.
+Update 2026-09-23: Trakt import and replay succeeded. Dave's anime statuses and scores came from anilist.co through MyAniList for iOS; no MAL account exists, and the unused MAL importer was removed. The AniList import and replay also succeeded: 50 statuses, 33 ratings and 50 stable media mappings with no open AniList review. AniList did not seed dated episode watch events. The Crunchyroll runner choice is open; the n8n reference in the project context remains a proposal, not an approved activation.
 
-Before the AniList seed writes user state, review and apply the forward, Marquee-only migration allowing `source='anilist'` in `marquee_statuses` and `marquee_ratings`. Their previously applied check constraints allow MAL but exclude AniList. Do not rewrite the applied migration or touch GameDeck. Confirm list visibility before a real run. Leave the historical unused MAL values in the applied schema until a separately reviewed cleanup.
+The forward, Marquee-only migration allowing `source='anilist'` in `marquee_statuses` and `marquee_ratings` was applied and verified before the seed. Do not rewrite the applied migration or touch GameDeck. Leave the historical unused MAL values in the applied schema until a separately reviewed cleanup.
 
-The forward migration and offline-tested importer now live at `supabase/migrations/20260923183118_marquee_anilist_user_state_source.sql` and `scripts/anilist-import/`. The script requests scores on AniList's fixed 10-point decimal scale and retains the raw entry. The migration is not live. Verify list visibility with Dave's AniList username; private entries require a secure OAuth token for a complete seed. Linked anime are preserved for franchise review rather than assigned an automatic show.
+The applied migration and importer live at `supabase/migrations/20260923183118_marquee_anilist_user_state_source.sql` and `scripts/anilist-import/`. The script requests scores on AniList's fixed 10-point decimal scale and retains the raw entry. Dave approved the public-list import for `Daveywavey9`. Muse reviewed the 45 initially ambiguous entries, wrote manual mappings, then replayed the import to zero unresolved entries. The importer is a one-time list seed, not an ongoing episode history source.
 
 | Layer | Tables | Key invariant |
 | --- | --- | --- |
@@ -34,6 +34,15 @@ Fetch pages completely, persist raw records, resolve mappings or review entries,
 Before the first real import, validate the Crunchyroll/Trakt overlap window with actual source timestamps. Do not guess that window in this schema migration.
 
 ## Phase 2 and 3 gates
+
+### Agreed execution order as of 2026-09-23
+
+1. Establish Trakt credential continuity, including the expiring access token and flagged client-secret rotation, then schedule and verify the existing idempotent sync. Rotate the flagged Supabase database password through the operator without committing secrets. The manual Trakt import already works; this step makes it ongoing.
+2. Test Crunchyroll history access read-only. Establish pagination, oldest available event, timestamps, stable episode IDs, account/profile scope and whether the returned history is complete. Do not promise lifetime coverage before checking. Select the extraction method and runner after this evidence; n8n has not been conclusively ruled out in this repo plan.
+3. Backfill all accessible Crunchyroll episode history. Preserve raw observations, map stable IDs to the reviewed AniList catalog, send ambiguity to review, check Trakt overlap with real timestamps, and verify replay before committing a success checkpoint.
+4. Start incremental Crunchyroll sync with a replay overlap at the backfill boundary. Verify fresh events, no duplicates, failure behavior, source provenance and an unchanged GameDeck baseline. Do not activate a schedule or live n8n workflow without Dave's authorization.
+
+The first concrete task is Trakt token refresh and scheduling design. Muse handles secret wiring and live execution; repo changes can be prepared and validated separately. AniList is complete as a one-time status and score seed, and MAL is out of scope. Only after the ongoing feeds are proven should PWA work begin.
 
 Trakt: paginate history, ratings and watchlist; retain Trakt, TMDb and IMDb IDs, original timestamps and run heartbeat. AniList account: fetch the complete anime list, retain stable media/list-entry IDs and source score format, seed statuses and scores with source precedence. Crunchyroll: cache mapped IDs, throttle AniList on cache misses, back off on HTTP 429, and fail loudly on contract changes. Credentials are supplied at runtime; no live Crunchyroll workflow is authorized yet.
 

@@ -14,10 +14,11 @@ Marquee tracks shows, movies, anime seasons and episodes. V1 includes episode ch
 
 ## Next releases
 
-- Trakt import and replay completed on 2026-09-23; the manual Actions workflow is unscheduled.
-- Seed Dave's anilist.co anime statuses and scores using stable AniList IDs, after checking list visibility or private authorization. MyAniList on iOS is his client. There is no MAL import.
-- The Crunchyroll runner choice remains open; n8n is still the original proposal, without activation approval.
-- Mapping corrections and real-history validation by Muse.
+- Trakt import and replay completed on 2026-09-23. Next, settle credential refresh and schedule ongoing Trakt sync before the current token expires.
+- Dave's anilist.co list seed and replay completed: 50 statuses, 33 ratings and no open AniList reviews. MyAniList on iOS is his client. There is no MAL import. AniList did not seed dated episode watch events.
+- Test read-only access to Crunchyroll history, document its oldest available event and source identity fields, then backfill the accessible history with reviewed mappings.
+- Start Crunchyroll incremental sync after backfill with a replay overlap, idempotency checks and a watermark that advances only after all required writes succeed. The runner choice remains open, including whether to use n8n.
+- Recheck GameDeck behavior and counts after the new ingestion work. Mapping corrections and real-history validation remain with Muse.
 
 No PWA, recommendations, AniList write-back, social features, playback, GameDeck rank changes, or live workflow changes belong to this release.
 

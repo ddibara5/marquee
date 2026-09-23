@@ -525,3 +525,13 @@ Kickoff is complete when:
 Do not modify `game_ranks` or `rank_comparisons` during ingestion kickoff.
 
 Those current GameDeck tables are directly foreign-keyed to GameDeck games. The decision to share the taste engine remains valid, but the additive compatibility design for non-game media should be handled as a dedicated v1.1 migration after Marquee's canonical media IDs are stable.
+
+## Decision update: 2026-09-23
+
+This section overrides earlier kickoff assumptions where they conflict.
+
+- Dave has no MAL account. The MAL/Jikan one-time import was dropped. AniList through MyAniList on iOS is the source for the one-time anime status and score seed. The public AniList list was imported and replayed successfully: 50 stable mappings, 50 statuses, 33 ratings, zero open AniList reviews. It did not produce dated episode watch history.
+- Trakt's first import and idempotent replay succeeded. Both the Trakt and AniList GitHub Actions workflows remain manual only. No Crunchyroll ingestion has run.
+- Priority order: first establish Trakt credential refresh and schedule ongoing Trakt sync; next verify Crunchyroll history access and how far back it reaches; then backfill accessible Crunchyroll episode history; finally start incremental Crunchyroll sync with a replay overlap and verify freshness, duplicates, watermarks and the GameDeck baseline.
+- The Crunchyroll runner remains undecided. Earlier n8n workflow diagrams are a proposal, not a decision to activate n8n or to rule it out. Obtain Dave's authorization before activating any live schedule or n8n workflow. Keep credentials out of the repo and chat.
+- The PWA and recommendations remain deferred until ongoing ingestion is proven.

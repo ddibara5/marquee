@@ -11,7 +11,9 @@ The source is Dave's **anilist.co** account, used through MyAniList for iOS. Thi
 
 ## Operator sequence
 
-1. Have the applying operator review and apply the forward migration `supabase/migrations/20260923183118_marquee_anilist_user_state_source.sql` to project `eiskobjlvxzwvucgpenk` after a GameDeck baseline check. Run `supabase/verification/05_anilist_user_state_source.sql` and the existing role/integrity checks. This migration has **not** been applied by committing it.
+The public-list first import and replay completed on 2026-09-23 for `Daveywavey9` after the migration was applied. All 50 entries now have stable mappings; 50 statuses and 33 ratings were seeded. This is an archival replay guide, not a pending first-import checklist. It does not create dated episode history.
+
+1. For another environment, have the applying operator review and apply the forward migration `supabase/migrations/20260923183118_marquee_anilist_user_state_source.sql` to project `eiskobjlvxzwvucgpenk` after a GameDeck baseline check. Run `supabase/verification/05_anilist_user_state_source.sql` and the existing role/integrity checks. For this project, the migration is already applied; do not apply it twice.
 2. Provide the **AniList username or profile URL** (public, no secret). For a complete list including private entries, supply an AniList OAuth access token through a secure operator environment as `ANILIST_ACCESS_TOKEN`. If Dave confirms there are no private entries, `--accept-public-list` allows a public request. A username alone cannot prove private entries are absent.
 3. Run a read-only dry run, review count and related items, and verify the account identity. Then import with a session-pooler/direct `MARQUEE_DATABASE_URL` and the existing Marquee `auth.users` UUID. Never place a token, database URL or real list payload in Git, fixture files or chat.
 

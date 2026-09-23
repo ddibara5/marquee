@@ -1,0 +1,45 @@
+[
+  [
+    {
+      "date_played": "2026-09-20T10:00:00Z",
+      "fully_watched": true,
+      "panel": {
+        "id": "GFAKE001",
+        "title": "Fabricated episode",
+        "episode_metadata": {
+          "series_id": "GFAKESERIES",
+          "season_id": "GFAKESEASON",
+          "episode_number": "1"
+        }
+      }
+    },
+    {
+      "date_played": "2026-01-10T11:30:00Z",
+      "fully_watched": false,
+      "panel": {
+        "id": "GFAKE002",
+        "title": "Another fabricated episode",
+        "episode_metadata": {
+          "series_id": "GFAKESERIES",
+          "season_id": "GFAKESEASON",
+          "episode_number": "2"
+        }
+      }
+    }
+  ],
+  [
+    {
+      "date_played": "2026-01-09T13:00:00Z",
+      "fully_watched": true,
+      "panel": {
+        "id": "GFAKE001",
+        "title": "Fabricated episode rewatch",
+        "episode_metadata": {
+          "series_id": "GFAKESERIES",
+          "season_id": "GFAKESEASON",
+          "episode_number": "1"
+        }
+      }
+    }
+  ]
+]

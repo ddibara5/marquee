@@ -30,3 +30,5 @@ Before the first real import, validate the Crunchyroll/Trakt overlap window with
 ## Phase 2 and 3 gates
 
 Trakt: paginate history, ratings and watchlist; retain Trakt, TMDb and IMDb IDs, original timestamps and run heartbeat. MAL/Jikan: one-time seed with source precedence. Crunchyroll: cache mapped IDs, throttle AniList on cache misses, back off on HTTP 429, and fail loudly on contract changes. Credentials are supplied at runtime; no live workflow is authored or activated in Phase 1.
+
+Phase 2 Trakt script: [`scripts/trakt-sync/README.md`](../scripts/trakt-sync/README.md) documents the offline-tested Python implementation, direct OAuth transport, reviewed non-anime TV ID gate and private Postgres runner requirements. It has not fetched or written live data. The bridge interface has not been provided; source access can be swapped without changing the catalog contract.

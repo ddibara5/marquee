@@ -25,6 +25,18 @@ python scripts/trakt-sync/trakt_sync.py --user-id YOUR_EXISTING_AUTH_UUID --appr
 
 Dave approved the first live import on 2026-09-23. The [first run](https://github.com/ddibara5/marquee/actions/runs/35890598381) and [replay](https://github.com/ddibara5/marquee/actions/runs/35896718778) succeeded. Future runs remain manual. Do not pass real credentials through chat.
 
+## Authorize Dave's dedicated Marquee app
+
+On Dave's trusted computer, install [GitHub CLI](https://cli.github.com/) and authenticate as a repository owner with `gh auth login`. Run `gh auth status` and verify the active account can edit `ddibara5/marquee` Actions secrets. Download the latest repo or clone it locally, then run:
+
+```sh
+python3 scripts/trakt-sync/authorize.py
+```
+
+Enter the dedicated Marquee app's client ID and client secret into the local hidden prompts. Open the Trakt verification URL and enter the short code that the helper prints; approve **Marquee** under Dave's Trakt account. The helper sends the credentials and newly issued user access and refresh tokens to the four **repository Actions secrets** via `gh secret set`. It does not put secrets in shell history, code, a file, or terminal output. Do not upload screenshots of credential pages or run the existing manual importer while secrets are being replaced. If a GitHub secret write fails, leave the workflow manual and rerun device authorization rather than trying to recover a partially used token.
+
+The resulting `TRAKT_CLIENT_ID` and `TRAKT_ACCESS_TOKEN` pair allows manual imports for the token's current lifetime. `TRAKT_CLIENT_SECRET` and `TRAKT_REFRESH_TOKEN` are stored for a future refresh runner; **this helper does not enable automatic rotation, and the current importer does not read those two secrets. Do not add a schedule yet.** Trakt refresh tokens are single-use: any future refresh must securely persist both replacement tokens before running the importer. The operator should test a read-only dry run and one replay after authorization. Leave the old Muse Trakt connection intact until the new app is verified.
+
 ## Replay and operations
 
 The importer fetches complete snapshots and checks every page's count and identity before writing. It uses a per-user Postgres advisory lock, records a sync run, then writes raw records, mappings, review entries, state and the success checkpoint in one transaction. Any failed fetch or write records a failed run and leaves the success checkpoint untouched. The watermark is an audit marker; it is never used to skip past older watches or ratings. Replaying identical records uses stable IDs and unique keys and preserves manual rows and locked mappings. A completed, fully resolved watchlist is reconciled against Trakt; a watchlist with unresolved identities leaves existing entries in place.

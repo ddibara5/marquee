@@ -1,0 +1,23 @@
+name: AniList import (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned requirements
+        run: pip install "psycopg[binary]==3.3.6"
+      - name: Run AniList import
+        run: >-
+          python3 scripts/anilist-import/anilist_import.py
+          --username Daveywavey9
+          --user-id c566e7e0-880a-430d-85df-c40484144a91
+          --accept-public-list
+        env:
+          MARQUEE_DATABASE_URL: ${{ secrets.MARQUEE_DATABASE_URL }}

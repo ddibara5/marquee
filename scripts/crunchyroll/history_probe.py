@@ -11,7 +11,7 @@ import os
 import sys
 import time
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urljoin, urlsplit
 from urllib.request import Request, urlopen
 from uuid import uuid4
 
@@ -117,8 +117,48 @@ def boundary_checks(account_id, token, *, requester=request_json):
     return results
 
 
+def legacy_history_pages(account_id, token, *, requester=request_json,
+                         sleep=time.sleep, max_pages=MAX_PAGES):
+    """Follow the older endpoint's next_page, confined to this account and host."""
+    if not isinstance(account_id, str) or not account_id or "/" in account_id:
+        raise ProbeError("Invalid account identifier")
+    path = "/content/v1/watch-history/" + account_id
+    url = BASE + path + "?" + urlencode({"locale": "en-US", "page": 1,
+                                          "page_size": 20})
+    seen_urls, seen_pages = set(), set()
+    for page in range(1, max_pages + 1):
+        parsed = urlsplit(url)
+        if (parsed.scheme != "https" or parsed.netloc != "www.crunchyroll.com"
+                or parsed.path != path or parsed.fragment or url in seen_urls):
+            raise ProbeError("Legacy pagination link is invalid or repeated")
+        seen_urls.add(url)
+        request = Request(url, headers={"Authorization": "Bearer " + token,
+                                        "Accept": "application/json",
+                                        "User-Agent": "MarqueeHistoryProbe/1.0"})
+        payload = request_stage(request, f"Legacy history page {page}", requester=requester)
+        if not isinstance(payload, dict) or not isinstance(payload.get("items"), list):
+            raise ProbeError("Legacy history response changed shape")
+        items = payload["items"]
+        if any(not isinstance(item, dict) for item in items):
+            raise ProbeError("Legacy history item changed shape")
+        if items:
+            signature = json.dumps(items, sort_keys=True, separators=(",", ":"))
+            if signature in seen_pages:
+                raise ProbeError("Legacy history returned the same page twice")
+            seen_pages.add(signature)
+            yield items
+        next_page = payload.get("next_page")
+        if next_page is None or next_page == "":
+            return
+        if not isinstance(next_page, str) or not next_page.startswith(("/", "?")):
+            raise ProbeError("Legacy pagination link changed shape")
+        url = urljoin(url, next_page)
+        sleep(0.2)
+    raise ProbeError("Legacy page limit reached before finding the end of history")
+
+
 def history_pages(account_id, token, *, requester=request_json, sleep=time.sleep,
-                  max_pages=MAX_PAGES, envelope_keys=None):
+                  max_pages=MAX_PAGES, envelope_keys=None, envelope_info=None):
     if not isinstance(account_id, str) or not account_id or "/" in account_id:
         raise ProbeError("Invalid account identifier")
     seen_pages = set()
@@ -129,6 +169,11 @@ def history_pages(account_id, token, *, requester=request_json, sleep=time.sleep
             raise ProbeError("Crunchyroll history response changed shape")
         if envelope_keys is not None:
             envelope_keys.update(payload)
+        if envelope_info is not None and page == 1:
+            total = payload.get("total")
+            envelope_info["reported_total"] = total if type(total) is int and total >= 0 else None
+            meta = payload.get("meta")
+            envelope_info["meta_field_names"] = sorted(meta) if isinstance(meta, dict) else []
         items = payload["data"]
         if not items:
             return
@@ -207,24 +252,50 @@ def summarize(pages, *, account_keys=None):
 def main():
     pages = []
     envelope_keys = set()
+    envelope_info = {}
     try:
         token = bearer_from_cookie(os.environ.get("CRUNCHYROLL_ETP_RT", ""))
         account_id, keys = get_account_id(token)
-        for page in history_pages(account_id, token, envelope_keys=envelope_keys):
+        for page in history_pages(account_id, token, envelope_keys=envelope_keys,
+                                  envelope_info=envelope_info):
             pages.append(page)
         result = summarize(pages, account_keys=keys)
         result["history_envelope_keys"] = sorted(envelope_keys)
+        result.update(envelope_info)
     except ProbeError as exc:
         if pages:
             # A boundary error must remain a failure, but coverage observed so far
             # can help distinguish a short final page from a server-side page cap.
             observed = summarize(pages, account_keys=keys)
             observed["history_envelope_keys"] = sorted(envelope_keys)
+            observed.update(envelope_info)
             print(json.dumps({"coverage": "incomplete", "observed":
                               observed}, sort_keys=True))
             if str(exc).startswith("History page 11:") and "(HTTP 400)" in str(exc):
                 print(json.dumps({"boundary_checks": boundary_checks(account_id, token)},
                                  sort_keys=True))
+                legacy_pages = []
+                try:
+                    for page in legacy_history_pages(account_id, token):
+                        legacy_pages.append(page)
+                    legacy = summarize(legacy_pages, account_keys=keys)
+                    v2_ids = {item.get("id") for page in pages for item in page
+                              if isinstance(item.get("id"), str)}
+                    overlap = sum(item.get("id") in v2_ids for page in legacy_pages
+                                  for item in page if isinstance(item.get("id"), str))
+                    if not overlap:
+                        raise ProbeError("Legacy history has no matching event IDs")
+                    print(json.dumps({"coverage": "legacy_next_page_end_observed",
+                                      "overlap_with_v2_observations": overlap,
+                                      "observed": legacy}, sort_keys=True))
+                    return 0
+                except ProbeError as legacy_exc:
+                    if legacy_pages:
+                        print(json.dumps({"coverage": "legacy_incomplete",
+                                          "observed": summarize(legacy_pages,
+                                                                account_keys=keys)},
+                                         sort_keys=True))
+                    print(f"Legacy probe failed: {legacy_exc}", file=sys.stderr)
         print(f"Crunchyroll probe failed: {exc}", file=sys.stderr)
         return 1
     print(json.dumps(result, sort_keys=True))

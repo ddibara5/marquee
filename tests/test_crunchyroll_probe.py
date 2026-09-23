@@ -103,6 +103,49 @@ class CrunchyrollProbeTests(unittest.TestCase):
         self.assertNotIn("private-event", json.dumps(checks))
         self.assertNotIn("secret-token", json.dumps(checks))
 
+    def test_legacy_next_page_reads_to_end_without_emitting_records(self):
+        urls = []
+
+        def requester(request):
+            urls.append(request.full_url)
+            if len(urls) == 1:
+                return {"items": [{"id": "private-event", "date_played":
+                                    "2026-01-01T12:00:00Z", "panel": {"id": "episode"}}],
+                        "next_page": "/content/v1/watch-history/fake-account?page=2"}
+            return {"items": [{"id": "older-event", "date_played":
+                                "2025-12-01T12:00:00Z", "panel": {"id": "episode"}}]}
+
+        pages = list(probe.legacy_history_pages("fake-account", "secret-token",
+                                                 requester=requester,
+                                                 sleep=lambda _: None))
+        self.assertEqual([len(page) for page in pages], [1, 1])
+        self.assertEqual(len(urls), 2)
+        self.assertEqual(probe.summarize(pages)["oldest_date_played_utc"],
+                         "2025-12-01T12:00:00+00:00")
+
+    def test_legacy_rejects_cross_host_link_before_sending_token(self):
+        calls = []
+
+        def requester(request):
+            calls.append(request.full_url)
+            return {"items": [{"id": "private-event"}],
+                    "next_page": "//untrusted.example/content/v1/watch-history/account"}
+
+        with self.assertRaisesRegex(probe.ProbeError, "pagination link"):
+            list(probe.legacy_history_pages("account", "secret-token",
+                                            requester=requester,
+                                            sleep=lambda _: None))
+        self.assertEqual(len(calls), 1)
+
+    def test_v2_metadata_reports_only_safe_counts_and_field_names(self):
+        envelope = {}
+        pages = list(probe.history_pages("account", "token", envelope_info=envelope,
+                                        requester=lambda _: {"data": [], "total": 1200,
+                                                             "meta": {"next": "private-url"}}))
+        self.assertEqual(pages, [])
+        self.assertEqual(envelope, {"reported_total": 1200,
+                                    "meta_field_names": ["next"]})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -18,3 +18,6 @@ The live workflow is **Marquee | Crunchyroll incremental history (review first)*
 ## Maintenance
 
 Check the Marquee sync state and run counts after each change. On a failed overlap or changed source shape, inspect the source safely and adjust the importer or reviewed mapping before rerunning; the prior checkpoint remains. If Crunchyroll changes its auth endpoint or public client identifier, update the documented public client exchange and revalidate the workflow. Rotate the cookie only inside n8n. Do not run the old full-history stage job as the daily importer.
+# Prompt date policy (2026-09-24)
+
+The existing workflow and credentials stay as configured. The Marquee RPC now records a dated, source-reported watch only for an eligible new live event first observed within 48 hours of its source time, with a reviewed canonical episode and source evidence. It keeps the undated completion and records a `marquee_watch_date_decisions` audit row. Older staged observations remain undated. See `docs/SOURCE_OF_TRUTH.md` for the precise conditions.

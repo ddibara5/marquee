@@ -1,8 +1,6 @@
-name: Trakt sync (daily and manual)
+name: Trakt sync (manual recovery)
 
 on:
-  schedule:
-    - cron: "17 11 * * *"
   workflow_dispatch:
     inputs:
       dry_run:

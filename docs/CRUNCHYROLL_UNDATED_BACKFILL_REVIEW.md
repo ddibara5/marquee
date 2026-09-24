@@ -14,7 +14,7 @@ Status: proposal only. No schema migration, source mapping, canonical watch, or 
 | Episode identifier groups with no usable episode number | 8 | Require individual identity review. |
 | Observations without episode panels | 1,954 | Cannot establish an episode; 1,953 have a parent ID seen as a series elsewhere. |
 
-Crunchyroll `date_played` is untrusted. There are 1,631 distinct source timestamps across 7,933 observations, and 6,156 observations use five identical timestamp values. Different timestamps cannot establish separate rewatch occasions; identical timestamps cannot establish duplicate observations. The source values remain private raw evidence, never a canonical `watched_at`.
+Crunchyroll `date_played` has mixed quality. There are 1,631 distinct source timestamps across 7,933 observations, and 6,156 observations use five identical timestamp values. Different timestamps alone cannot establish separate rewatch occasions; identical timestamps cannot establish duplicate observations. The 40 observations dated March 2026 onward each have a distinct timestamp, so recent dates remain candidates for verification. Neither distinctness nor a date after the episode aired proves when Dave watched it. Keep source values in private raw evidence; use a canonical `watched_at` only after independent episode-level corroboration or user verification, with the verification recorded. Otherwise represent the completed episode without a date.
 
 ## Mapping and overlap order
 
@@ -32,7 +32,7 @@ The applied `marquee_watch_history.watched_at` is `NOT NULL`. Do not put a place
 - `marquee_undated_episode_completions`: one row per `(user_id, episode_id)`, foreign keys to `auth.users` and `marquee_episodes`, creation/update timestamps for database bookkeeping only. No playback date and no fabricated event count. Authenticated users may read only their own rows; service role performs reviewed writes.
 - `marquee_undated_episode_evidence`: one row per completed raw Crunchyroll event, keyed by the existing `marquee_ingest_raw.id`, with `(user_id, episode_id)` referencing the completion and a stable source episode identifier. This retains every source event without treating event count as distinct watches. Service role only. A raw event cannot point to two canonical episodes.
 
-Progress and “watched” displays use the union of dated and undated episode IDs per user, counting each canonical episode once. Dated Trakt viewings retain their own event records and dates. A repeated import must make no extra completion or evidence rows. Source remapping requires an explicit review and replay transaction; never silently retarget evidence. If a separately corroborated date appears later, add or correct a dated event through a reviewed path; do not promote the raw Crunchyroll timestamp.
+Progress and “watched” displays use the union of dated and undated episode IDs per user, counting each canonical episode once. Dated Trakt viewings retain their own event records and dates. A repeated import must make no extra completion or evidence rows. Source remapping requires an explicit review and replay transaction; never silently retarget evidence. If a Crunchyroll date is independently corroborated or user verified later, add or correct a dated event through a reviewed path and retain the verification decision. Do not promote an unverified raw timestamp.
 
 ## Backfill gates
 

@@ -1,6 +1,6 @@
 # Marquee design reference
 
-Marquee is a personal screen journal for picking up a show, checking an episode, and seeing what was watched. Use GameDeck as a reference for owner-only sign-in, straightforward bottom navigation, and the GitHub → Vercel preview → review workflow; Marquee has its own visual voice.
+Marquee is a personal screen journal for picking up a show, checking an episode, and seeing what was watched. Use GameDeck as a reference for owner-only sign-in and straightforward bottom navigation. Routine UI changes publish from `main` to a stable production URL; use a branch preview when the owner requests separate review. Marquee has its own visual voice.
 
 ## Approved first-pass direction (2026-09-24)
 

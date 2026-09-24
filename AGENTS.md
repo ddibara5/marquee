@@ -4,11 +4,11 @@ Read `README.md`, `PROJECT_CONTEXT.md`, `docs/SOURCE_OF_TRUTH.md`, `docs/INGESTI
 
 ## Product and workflow
 
-- Marquee is a private, phone-first screen journal. `web/` is a Vite/React app deployed from GitHub to Vercel. Use a branch preview at iPhone width for UI changes; promote only after reviewing the actual build. Preserve owner-only Supabase authentication.
+- Marquee is a private, phone-first screen journal. `web/` is a Vite/React app deployed from GitHub to Vercel. For routine app and UI changes, commit directly to `main` so the production URL stays stable for saved sign-in. Check the deployed build and revert the commit if needed. Use a branch preview when Dave explicitly requests one or when a change needs separate review before production. Preserve owner-only Supabase authentication.
 - Keep all new database objects `marquee_` scoped. Never modify GameDeck tables, authentication settings, or live n8n workflow configuration as a side effect of app work.
 - Episode progress is distinct canonical episodes, even when multiple sources support a completion. Keep source evidence and manual overrides; exclude One Piece and Fairy Tail.
 - Trakt watches and manual check-ins have dated activity. Historical Crunchyroll completions remain undated. Promptly observed Crunchyroll activity may show a **source-reported** date only under the documented observation policy in `docs/SOURCE_OF_TRUTH.md`. Never convert bulk backfill timestamps into watch dates.
-- Run `npm test` and `npm run build` from `web/` after app changes. Run relevant existing pipeline checks after SQL changes. Verify mobile layouts and data states in a Vercel preview.
+- Run `npm test` and `npm run build` from `web/` before publishing app changes. Run relevant existing pipeline checks after SQL changes. Verify mobile layouts and data states against the deployed app, at iPhone width when feasible; a preview is optional under the workflow above.
 
 ## Shared skills
 

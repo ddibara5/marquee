@@ -98,6 +98,28 @@ These are catalog **identity** proposals corroborated by stable source season co
 
 The other 21 source series have 614 completed source identifiers in total, with unresolved source-to-AniList season and episode identities. They include Sword Art Online, Dr. Stone, Blue Exorcist, Fullmetal Alchemist: Brotherhood, Demon Slayer, Jujutsu Kaisen, Code Geass, Spy x Family, Re:Zero, Solo Leveling, Tokyo Ghoul, Michiko & Hatchin, The Apothecary Diaries, Fire Force, Yu Yu Hakusho, Fruits Basket and the separate *Jujutsu Kaisen 0* film; four more series have only partial playback. Generic numbered-season candidates still contain wrong-show suggestions (for example Re:Zero Season 2 and Spy x Family Season 2), and the imported AniList **catalog** has only the 47 seasons and 3 films present in Dave's 50-entry user-list seed. Expand the catalog independently of the user list and rerun/review the candidate queue before approving season mappings.
 
+| Further source show | Complete distinct IDs | Specific identity/overlap issue still to resolve |
+| --- | ---: | --- |
+| Sword Art Online | 92 | Four source bundles contain series parts and special/recap numbers; manual original completed 25/25. Do not use a fractional special as TV episode 15. |
+| Dr. Stone | 73 | First season 23/24 in Crunchyroll, manual 24/24; later bundles include a separate one-episode Ryusui special and split later seasons. |
+| Blue Exorcist | 70 | First season 23/25 in Crunchyroll, manual 25/25; four later 12-episode sagas require separate AniList media IDs. |
+| Fullmetal Alchemist: Brotherhood | 64 | One 1–64 source run and completed 64/64 manual season; confirm source series and media identity, then count once. |
+| Jujutsu Kaisen TV | 52 | First season 24/24 overlaps manual 24/24; second 22/23, third 6/7. The separate nine-version *Jujutsu Kaisen 0* film is held. |
+| Demon Slayer | 50 | Five distinct source arcs; first has 19/26 complete in Crunchyroll but manual 26/26. Mugen Train TV arc requires its own target, not the compilation film. |
+| Code Geass | 49 | First season 25/25 overlaps manual 25/25; R2 has 24/25 complete in source and requires its sequel identity. |
+| Spy x Family | 34 | Crunchyroll source Season 1 bundles 25 episodes while AniList's imported first cour is 12/12 completed; split by episode range before merging later seasons. |
+| Re:Zero | 26 | Crunchyroll lists a 13-installment **Director's Cut**, Season 2 and OVAs; manual original 25/25 cannot be equated to 10 completed Director's Cut installments or an extra rewatch. |
+| Solo Leveling | 23 | First season 10/12 in source, manual 12/12; second source bundle 13/13 has separate sequel identity and source numbers 13–25. |
+| Tokyo Ghoul | 23 | First 12/12 and Root A 11/12 source complete; both AniList seasons are manually completed 12/12. |
+| Michiko & Hatchin | 22 | Source 1–22 and manual completed 22/22; confirm AniList media identity and count once. |
+| The Apothecary Diaries | 17 | Source Season 1 episodes 1–17; check its AniList catalog and manual status independently of English title similarity. |
+| Fire Force | 10 | Source Season 1 has 10/14 observed completions; imported first-season status is watching with progress 0. Verify published season total before any completed-status change. |
+| Yu Yu Hakusho | 6 | English-dubbed source 1–6; confirm 1992 TV media, not a remake or special. |
+| Fruits Basket (2019) | 2 | Source episodes 1–2 complete, 3 partial; use 2019 media identity, not the 2001 anime. |
+| Jujutsu Kaisen 0 | 1 | Nine language observations collapse to one film candidate; Dave did not select it in the specials question, so hold. |
+
+These **614** are source IDs, not 614 newly approved watches. Four other source series contribute only partial playback and no completion candidates. Completed AniList seasons in this table already establish their own full regular-episode coverage after media/episode identity review; partial Crunchyroll observations neither erase that manual completion nor add a rewatch.
+
 The current live season review queue is **222 open rows with 301 candidate entries**, rather than the historical 307-entry snapshot below: 135 have one title candidate, 29 have multiple and 58 have none. The reduction followed the Blue Lock generic-season correction. None of these title candidates is an approved mapping. There are still zero Crunchyroll season mappings, episode mappings, undated completion tables or canonical watches.
 
 ### Exclusions, special cases, dates and overlap

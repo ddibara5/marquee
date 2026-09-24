@@ -50,8 +50,11 @@ test('Up next prefers a recent unfinished verified season; stale statuses and ca
   const titles = ['Fire Force','The Apothecary Diaries','Ted Lasso'].map((display_title,i) => ({ id:`t${i}`,display_title,media_type:'show' }))
   const seasons = titles.map((title,i) => ({ id:`s${i}`,show_title_id:title.id,season_number:i===2?4:1 }))
   const episodes = seasons.flatMap((season,i) => Array.from({length:[10,20,8][i]},(_,n) => ({id:`e${i}-${n}`,season_id:season.id,episode_number:n+1})))
-  const state = {titles,seasons,episodes,episode_completion_coverage:episodes.map(episode => ({episode_id:episode.id})),movie_completion_coverage:[],watch_history:[{episode_id:'e1-19',watched_at:'2026-09-24T03:00:00Z'},{episode_id:'e2-7',watched_at:'2026-09-24T01:00:00Z'}],statuses:[{season_id:'s0',status:'watching'}],ratings:[],verified_season_totals:[{season_id:'s0',episode_total:24},{season_id:'s1',episode_total:24}]}
-  const index = buildIndex(state)
+  const state = {titles,seasons,episodes,episode_completion_coverage:episodes.map(episode => ({episode_id:episode.id})),movie_completion_coverage:[],watch_history:[{episode_id:'e1-19',watched_at:'2026-09-24T03:00:00Z'},{episode_id:'e2-7',watched_at:'2026-09-24T01:00:00Z'}],statuses:[{season_id:'s0',status:'watching'}],ratings:[],verified_season_totals:[{season_id:'s0',episode_total:24},{season_id:'s1',episode_total:24}],season_release_schedules:[{season_id:'s2',first_release_on:'2026-08-05',interval_days:7,planned_episodes:10}]}
+  const index = buildIndex(state,new Date('2026-09-24T12:00:00Z'))
+  assert.deepEqual(index.seasonProgress(seasons[2]),{done:8,total:8,recorded:8,kind:'released',planned:10})
   assert.equal(getContinueTitle(index,new Date('2026-09-24T12:00:00Z'))?.title.display_title,'The Apothecary Diaries')
   assert.equal(getContinueTitle(index,new Date('2026-11-24T12:00:00Z')),null)
+  const nextWeek = buildIndex(state,new Date('2026-09-30T12:00:00Z'))
+  assert.equal(nextWeek.seasonProgress(seasons[2]).total,9)
 })

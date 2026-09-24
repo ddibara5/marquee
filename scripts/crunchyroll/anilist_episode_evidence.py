@@ -189,6 +189,49 @@ def evidence(records, review_rows, metadata, show_targets=None):
     return dict(out)
 
 
+def series_proposals(records, review_rows, metadata, show_targets):
+    """Require an exact external ID and no conflicting candidate or parent evidence."""
+    source_by_season = defaultdict(set)
+    mismatched_parents = set()
+    for event in records:
+        panel = event.get("panel")
+        episode = panel.get("episode_metadata") if isinstance(panel, dict) else None
+        if not isinstance(episode, dict):
+            continue
+        series = episode["series_id"]
+        source_by_season[episode["season_id"]].add(series)
+        if event.get("parent_id") != series:
+            mismatched_parents.update((series, event.get("parent_id")))
+    if any(len(series) != 1 for series in source_by_season.values()):
+        raise ReviewError("Source season crosses series identities")
+    candidate_shows = defaultdict(set)
+    exact_shows = defaultdict(set)
+    for season_id, row in review_rows.items():
+        source_series = source_by_season.get(season_id)
+        if not source_series:
+            continue
+        series = next(iter(source_series))
+        for candidate in row["candidates"]:
+            candidate_shows[series].add(show_targets[candidate["canonical_season_id"]])
+        if len(row["candidates"]) != 1:
+            continue
+        candidate = row["candidates"][0]
+        linked_series = metadata[int(candidate["anilist_media_id"])][2]
+        if linked_series == {series}:
+            exact_shows[series].add(show_targets[candidate["canonical_season_id"]])
+    safe = {series: next(iter(shows)) for series, shows in exact_shows.items()
+            if len(shows) == 1 and candidate_shows[series] == shows
+            and series not in mismatched_parents}
+    return safe, {"exact_linked_series": len(exact_shows),
+                  "excluded_conflicting_show_candidates": sum(
+                      candidate_shows[s] != shows or len(shows) != 1
+                      for s, shows in exact_shows.items()),
+                  "excluded_parent_series_mismatch": sum(
+                      s in mismatched_parents and candidate_shows[s] == shows
+                      and len(shows) == 1 for s, shows in exact_shows.items()),
+                  "series_with_unambiguous_show_target": len(safe)}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--user-id", required=True)
@@ -201,14 +244,16 @@ def main(argv=None):
             raise ReviewError("Approved mappings exist; refresh candidate review")
         rows, _ = prepare(records, seasons)
         candidate_season_ids = {c["canonical_season_id"] for row in rows.values()
-                                if len(row["candidates"]) == 1 for c in row["candidates"]}
+                                for c in row["candidates"]}
         show_targets = canonical_show_targets(os.environ.get("MARQUEE_DATABASE_URL"),
                                               candidate_season_ids)
         media_ids = {c["anilist_media_id"] for row in rows.values()
                      if len(row["candidates"]) == 1 for c in row["candidates"]}
         metadata = anilist_metadata(media_ids)
+        _, proposal_counts = series_proposals(records, rows, metadata, show_targets)
         print(json.dumps({"review_evidence": evidence(records, rows, metadata, show_targets),
                           "anilist_media_checked": len(metadata),
+                          "series_mapping_proposal": proposal_counts,
                           "note": "Counts and years are review clues only; no mapping, date or watch was written."},
                          sort_keys=True))
         return 0

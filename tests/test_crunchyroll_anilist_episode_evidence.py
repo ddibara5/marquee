@@ -6,7 +6,8 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/crunchyroll"))
-from anilist_episode_evidence import ReviewError, anilist_metadata, crunchyroll_series_id, evidence
+from anilist_episode_evidence import (ReviewError, anilist_metadata,
+                                      crunchyroll_series_id, evidence, series_proposals)
 
 
 def event(season, number, air_date):
@@ -79,6 +80,30 @@ class AniListEvidenceTests(unittest.TestCase):
         conflict = evidence(records, rows, metadata,
                             {"season-1": "show-1", "season-2": "show-2"})
         self.assertEqual(conflict["exact_linked_series_with_conflicting_canonical_shows"], 1)
+
+    def test_proposal_excludes_candidate_conflicts_and_parent_disagreements(self):
+        rows = {"a": {"candidates": [{"anilist_media_id": "101",
+                                       "canonical_season_id": "season-1"}]},
+                "b": {"candidates": [{"anilist_media_id": "202",
+                                       "canonical_season_id": "season-2"}]}}
+        records = [event("a", 1, "2025-01-01"), event("b", 2, "2025-02-01")]
+        for record in records:
+            record["parent_id"] = "series-1"
+        metadata = {101: (12, 2025, {"series-1"}),
+                    202: (12, 2025, set())}
+        targets = {"season-1": "show-1", "season-2": "show-1"}
+        safe, counts = series_proposals(records, rows, metadata, targets)
+        self.assertEqual(safe, {"series-1": "show-1"})
+        self.assertEqual(counts["series_with_unambiguous_show_target"], 1)
+        targets["season-2"] = "show-2"
+        safe, counts = series_proposals(records, rows, metadata, targets)
+        self.assertEqual(safe, {})
+        self.assertEqual(counts["excluded_conflicting_show_candidates"], 1)
+        targets["season-2"] = "show-1"
+        records[1]["parent_id"] = "different-series"
+        safe, counts = series_proposals(records, rows, metadata, targets)
+        self.assertEqual(safe, {})
+        self.assertEqual(counts["excluded_parent_series_mismatch"], 1)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,26 @@
+name: Crunchyroll staged identity review (read-only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['scripts/crunchyroll/staged_review.py']
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Postgres driver
+        run: pip install "psycopg[binary]==3.3.6"
+      - name: Review staged identities and confirmed timestamp candidates
+        run: python3 scripts/crunchyroll/staged_review.py --user-id c566e7e0-880a-430d-85df-c40484144a91
+        env:
+          MARQUEE_DATABASE_URL: ${{ secrets.MARQUEE_DATABASE_URL }}

@@ -1,0 +1,9 @@
+{
+  "name": "marquee-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {"dev": "vite --host 0.0.0.0", "build": "vite build", "preview": "vite preview --host 0.0.0.0", "test": "node --test tests/*.test.js"},
+  "dependencies": {"@supabase/auth-js": "2.112.4", "@supabase/postgrest-js": "2.112.2", "react": "18.3.1", "react-dom": "18.3.1"},
+  "devDependencies": {"@vitejs/plugin-react": "4.3.1", "vite": "5.4.8"}
+}

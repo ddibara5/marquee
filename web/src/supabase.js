@@ -1,5 +1,6 @@
 import { GoTrueClient } from '@supabase/auth-js'
 import { PostgrestClient } from '@supabase/postgrest-js'
+import { fetchWithJwtFutureRetry } from './api-retry.js'
 
 // The publishable key is public; row-level security protects personal records.
 const url = import.meta.env?.VITE_SUPABASE_URL || 'https://eiskobjlvxzwvucgpenk.supabase.co'
@@ -11,6 +12,6 @@ const rest = new PostgrestClient(`${url}/rest/v1`, { schema: 'public', headers: 
   const headers = new Headers(init.headers || {})
   headers.set('apikey', key)
   headers.set('Authorization', `Bearer ${data?.session?.access_token || key}`)
-  return fetch(input, { ...init, headers })
+  return fetchWithJwtFutureRetry(input, { ...init, headers })
 } })
 export const from = rest.from.bind(rest)

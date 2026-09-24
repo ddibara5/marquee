@@ -49,6 +49,9 @@ class AniListEvidenceTests(unittest.TestCase):
         self.assertEqual(out["observed_number_exceeds_anilist_total"], 1)
         self.assertEqual(out["year_and_number_both_compatible"], 1)
         self.assertEqual(out["exact_source_series_id_in_anilist_link"], 1)
+        self.assertEqual(out["distinct_exact_linked_source_series"], 1)
+        self.assertEqual(out["distinct_exact_linked_anilist_media"], 1)
+        self.assertEqual(out["exact_link_with_compatible_year_and_number"], 1)
         self.assertEqual(out["anilist_link_points_to_other_series"], 1)
         self.assertNotIn("approved_mappings", out)
 

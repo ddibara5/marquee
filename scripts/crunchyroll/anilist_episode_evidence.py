@@ -105,6 +105,8 @@ def evidence(records, review_rows, metadata):
         if isinstance(air_date, str) and len(air_date) >= 4 and air_date[:4].isdigit():
             season["air_years"].add(int(air_date[:4]))
     out = defaultdict(int)
+    matched_series = set()
+    matched_media = set()
     for season_id, row in review_rows.items():
         if len(row["candidates"]) != 1 or season_id not in source:
             continue
@@ -122,6 +124,12 @@ def evidence(records, review_rows, metadata):
                 out["anilist_has_multiple_crunchyroll_series_links"] += 1
             elif series_id in linked_series:
                 out["exact_source_series_id_in_anilist_link"] += 1
+                matched_series.add(series_id)
+                matched_media.add(media_id)
+                if (total is not None and numbers and max(numbers) <= total
+                        and year is not None and years
+                        and min(years) - 1 <= year <= max(years) + 1):
+                    out["exact_link_with_compatible_year_and_number"] += 1
             else:
                 out["anilist_link_points_to_other_series"] += 1
         if total is None:
@@ -141,6 +149,8 @@ def evidence(records, review_rows, metadata):
                     out["year_and_number_both_compatible"] += 1
             else:
                 out["year_outside_episode_air_span"] += 1
+    out["distinct_exact_linked_source_series"] = len(matched_series)
+    out["distinct_exact_linked_anilist_media"] = len(matched_media)
     return dict(out)
 
 

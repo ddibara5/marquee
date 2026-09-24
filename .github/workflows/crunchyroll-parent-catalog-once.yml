@@ -1,0 +1,26 @@
+name: Crunchyroll parent catalog check (one-time)
+on:
+  push:
+    paths:
+      - .github/workflows/crunchyroll-parent-catalog-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    if: github.repository == 'ddibara5/marquee' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Postgres driver
+        run: pip install "psycopg[binary]==3.3.6"
+      - name: Verify missing-panel parent series in catalog
+        run: python3 scripts/crunchyroll/parent_catalog_probe.py --user-id c566e7e0-880a-430d-85df-c40484144a91
+        env:
+          MARQUEE_DATABASE_URL: ${{ secrets.MARQUEE_DATABASE_URL }}
+          CRUNCHYROLL_ETP_RT: ${{ secrets.CRUNCHYROLL_ETP_RT }}

@@ -12,6 +12,14 @@ Keep the other **20 bulk-marked extras** separate: My Hero Academia's four *Memo
 
 Dave separately confirmed finishing Link Click episode 5.5, Kaiju No. 8 *Hoshina's Day Off*, and the film Black Butler: Book of the Atlantic. These are **three distinct completion candidates**, not ordinary TV episode numbers. The Black Butler film needs a movie identity. Jujutsu Kaisen 0 was not selected and stays in review; non-selection does not establish that it was unwatched.
 
+| Owner-confirmed separate item | Stable Crunchyroll identifier | Identity treatment |
+| --- | --- | --- |
+| Link Click 5.5, *Marrying by Contesting* | `GP5HJ8E81|S00113950|E6` | Special labeled 5.5; not regular episode 6. |
+| Kaiju No. 8, *Hoshina's Day Off* | `GG5H5XQ7D|S00352541|E1` | Special embedded in a Season 2 source bundle; not regular Season 2 episode 1. |
+| Black Butler: Book of the Atlantic | `GYQ43P3E6|M|E0` | Film; requires its own canonical movie target. |
+
+For comparison, the nine language-version observations of the **unselected** *Jujutsu Kaisen 0* share one stable identifier, `GMTE00194450|E00194450A0030598`. Hold this single film candidate rather than counting nine viewings. These IDs were checked directly against the staged raw episode metadata; none has a Crunchyroll canonical mapping yet.
+
 When verified canonical episode coverage reaches the verified regular-season total, update the **Marquee status** to completed even if AniList still says planning or watching. Keep the imported AniList list record and its original status as provenance; a later AniList replay must not silently regress the derived completed status. Apply explicit Marquee manual overrides first. Do not infer a watch date or a rewatch count from AniList progress. Only make this status transition after the season and episode identities, total, and duplicate collapse are checked. This resolves the prior Frieren Season 2 and Hell's Paradise Season 1 status-policy question; their source episode identities and totals still need review.
 
 ## 2026-09-24 named coverage review (read-only)

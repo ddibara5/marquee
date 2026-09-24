@@ -2,10 +2,11 @@ import { from } from './supabase.js'
 
 export const excluded = /^(one piece|fairy tail)$/i
 export const isExcluded = title => excluded.test(title?.trim() || '')
+const orderKeys = { marquee_episode_completion_coverage: 'episode_id', marquee_movie_completion_coverage: 'movie_title_id', marquee_watchlist: 'title_id' }
 export async function allRows(table, select = '*') {
   const rows = []
   for (let start = 0; ; start += 800) {
-    const { data, error } = await from(table).select(select).range(start, start + 799)
+    const { data, error } = await from(table).select(select).order(orderKeys[table] || 'id').range(start, start + 799)
     if (error) throw error
     rows.push(...data)
     if (data.length < 800) return rows

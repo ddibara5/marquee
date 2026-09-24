@@ -36,12 +36,22 @@ test('insights count canonical episodes once and exclude undated-only and exclud
       { title_id:'show', status:'watching' },
       { season_id:'s1', status:'watching' },
       { title_id:'excluded', status:'watching' },
-    ], ratings:[], watchlist:[],
+    ], ratings:[], watchlist:[], verified_season_totals:[{season_id:'s1',episode_total:3}],
   }
   const index = buildIndex(state)
   const result = buildInsights(state,index,new Date('2026-09-26T12:00:00Z'))
   assert.equal(result.datedThisMonth,1)
   assert.equal(result.completedCataloged,2)
   assert.deepEqual(result.watching.map(show => show.id),['show'])
-  assert.equal(getContinueTitle(index)?.next?.id,'e3')
+  assert.equal(getContinueTitle(index,new Date('2026-09-26T12:00:00Z'))?.next?.id,'e3')
+})
+
+test('Up next prefers a recent unfinished verified season; stale statuses and caught-up seasons stay out', () => {
+  const titles = ['Fire Force','The Apothecary Diaries','Ted Lasso'].map((display_title,i) => ({ id:`t${i}`,display_title,media_type:'show' }))
+  const seasons = titles.map((title,i) => ({ id:`s${i}`,show_title_id:title.id,season_number:i===2?4:1 }))
+  const episodes = seasons.flatMap((season,i) => Array.from({length:[10,20,8][i]},(_,n) => ({id:`e${i}-${n}`,season_id:season.id,episode_number:n+1})))
+  const state = {titles,seasons,episodes,episode_completion_coverage:episodes.map(episode => ({episode_id:episode.id})),movie_completion_coverage:[],watch_history:[{episode_id:'e1-19',watched_at:'2026-09-24T03:00:00Z'},{episode_id:'e2-7',watched_at:'2026-09-24T01:00:00Z'}],statuses:[{season_id:'s0',status:'watching'}],ratings:[],verified_season_totals:[{season_id:'s0',episode_total:24},{season_id:'s1',episode_total:24}]}
+  const index = buildIndex(state)
+  assert.equal(getContinueTitle(index,new Date('2026-09-24T12:00:00Z'))?.title.display_title,'The Apothecary Diaries')
+  assert.equal(getContinueTitle(index,new Date('2026-11-24T12:00:00Z')),null)
 })

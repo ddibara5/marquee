@@ -24,20 +24,22 @@ export function buildInsights(data, index, now = new Date()) {
   }
 }
 
-export function getContinueTitle(index) {
-  const watching = index.titles.filter(title => title.media_type === 'show' && (
-    index.statuses.get(title.id)?.status === 'watching' ||
-    (index.byShow.get(title.id) || []).some(season => index.seasonStatuses.get(season.id)?.status === 'watching')
-  ))
-  if (!watching.length) return null
-  const ordered = watching.map(title => {
-    const episodes = (index.byShow.get(title.id) || []).flatMap(season => index.bySeason.get(season.id) || [])
-    const next = episodes.find(episode => !index.coverage.has(episode.id)) || null
-    const recent = episodes.reduce((latest, episode) => {
-      const watched = index.history.get(episode.id)?.[0]?.watched_at
-      return watched && watched > latest ? watched : latest
-    }, '')
-    return { title, next, recent }
-  }).sort((a,b) => (Number(Boolean(b.next)) - Number(Boolean(a.next))) || b.recent.localeCompare(a.recent) || a.title.display_title.localeCompare(b.title.display_title))
-  return ordered[0]
+export function getContinueTitle(index, now = new Date()) {
+  const cutoff = now.getTime() - 30 * 24 * 60 * 60 * 1000
+  const inactive = new Set(['completed', 'on_hold', 'dropped'])
+  const candidates = index.titles.filter(title => title.media_type === 'show' && !inactive.has(index.statuses.get(title.id)?.status)).flatMap(title =>
+    (index.byShow.get(title.id) || []).filter(season => !inactive.has(index.seasonStatuses.get(season.id)?.status)).map(season => {
+      const progress = index.seasonProgress(season)
+      if (!progress.total || progress.done >= progress.total) return null
+      const episodes = index.bySeason.get(season.id) || []
+      const next = episodes.find(episode => !index.coverage.has(episode.id) && (!episode.aired_at || new Date(episode.aired_at).getTime() <= now.getTime())) || null
+      const recent = episodes.reduce((latest, episode) => {
+        const watched = index.history.get(episode.id)?.[0]?.watched_at || ''
+        return watched > latest ? watched : latest
+      }, '')
+      const time = new Date(recent).getTime()
+      return time >= cutoff && time <= now.getTime() ? { title, season, progress, next, recent } : null
+    }).filter(Boolean)
+  ).sort((a,b) => b.recent.localeCompare(a.recent) || a.title.display_title.localeCompare(b.title.display_title))
+  return candidates[0] || null
 }

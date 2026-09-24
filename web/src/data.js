@@ -2,7 +2,7 @@ import { from } from './supabase.js'
 
 export const excluded = /^(one piece|fairy tail)$/i
 export const isExcluded = title => excluded.test(title?.trim() || '')
-const orderKeys = { marquee_episode_completion_coverage: 'episode_id', marquee_movie_completion_coverage: 'movie_title_id', marquee_watchlist: 'title_id' }
+const orderKeys = { marquee_episode_completion_coverage: 'episode_id', marquee_movie_completion_coverage: 'movie_title_id', marquee_watchlist: 'title_id', marquee_verified_season_totals: 'season_id' }
 export async function allRows(table, select = '*') {
   const rows = []
   for (let start = 0; ; start += 800) {
@@ -13,7 +13,7 @@ export async function allRows(table, select = '*') {
   }
 }
 export async function loadLibrary() {
-  const names = ['marquee_titles', 'marquee_seasons', 'marquee_episodes', 'marquee_episode_completion_coverage', 'marquee_movie_completion_coverage', 'marquee_watch_history', 'marquee_statuses', 'marquee_ratings']
+  const names = ['marquee_titles', 'marquee_seasons', 'marquee_episodes', 'marquee_episode_completion_coverage', 'marquee_movie_completion_coverage', 'marquee_watch_history', 'marquee_statuses', 'marquee_ratings', 'marquee_verified_season_totals']
   const values = await Promise.all(names.map(name => allRows(name)))
   return Object.fromEntries(names.map((name, index) => [name.replace('marquee_', ''), values[index]]))
 }
@@ -22,6 +22,7 @@ export function buildIndex(data) {
   const seasons = new Map(data.seasons.map(s => [s.id, s]))
   const episodes = new Map(data.episodes.map(e => [e.id, e]))
   const coverage = new Map(data.episode_completion_coverage.map(c => [c.episode_id, c]))
+  const verifiedTotals = new Map((data.verified_season_totals || []).map(row => [row.season_id, row.episode_total]))
   const movieCoverage = new Map(data.movie_completion_coverage.map(c => [c.movie_title_id, c]))
   const bySeason = new Map()
   for (const episode of data.episodes) {
@@ -47,10 +48,21 @@ export function buildIndex(data) {
     history.get(key).push(event)
   }
   for (const entries of history.values()) entries.sort((a,b) => b.watched_at.localeCompare(a.watched_at))
+  const seasonProgress = season => {
+    const items = bySeason.get(season.id) || []
+    const done = items.filter(e => coverage.has(e.id)).length
+    return { done, total: verifiedTotals.get(season.id) ?? null, recorded: items.length }
+  }
   const progress = t => {
     if (t.media_type === 'movie') return { done: movieCoverage.has(t.id) ? 1 : 0, total: 1 }
-    const items = (byShow.get(t.id) || []).flatMap(s => bySeason.get(s.id) || [])
-    return {done: items.filter(e => coverage.has(e.id)).length, total: items.length}
+    const seasonsForShow = byShow.get(t.id) || []
+    const recorded = seasonsForShow.reduce((sum, s) => sum + seasonProgress(s).done, 0)
+    const recent = seasonsForShow.map(season => ({ season, watched: (bySeason.get(season.id) || []).reduce((latest, episode) => {
+      const timestamp = history.get(episode.id)?.[0]?.watched_at || ''
+      return timestamp > latest ? timestamp : latest
+    }, '') })).filter(item => item.watched).sort((a,b) => b.watched.localeCompare(a.watched))[0]?.season
+    const focus = recent || [...seasonsForShow].reverse().find(s => seasonProgress(s).done)
+    return { ...seasonProgress(focus || { id: '' }), season: focus, recorded }
   }
-  return { titles, seasons, episodes, coverage, movieCoverage, bySeason, byShow, statuses, seasonStatuses, ratings, seasonRatings, watchlist, history, progress }
+  return { titles, seasons, episodes, coverage, movieCoverage, verifiedTotals, bySeason, byShow, statuses, seasonStatuses, ratings, seasonRatings, watchlist, history, seasonProgress, progress }
 }

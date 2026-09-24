@@ -23,7 +23,8 @@ with media_spec(label, series_id, source_season, first_number, last_number, anil
   ('World Trigger S1', 'GR757DMKY', 'S00170952', 1, 73, 20729),
   ('World Trigger S2', 'GR757DMKY', 'S00170965', 1, 12, 114087),
   ('World Trigger S3', 'GR757DMKY', 'S00310086', 1, 14, 127400),
-  ('Hunter x Hunter (2011)', 'GY3VKX1MR', 'S1', 1, 148, 11061)
+  ('Hunter x Hunter (2011)', 'GY3VKX1MR', 'S1', 1, 148, 11061),
+  ('Gachiakuta S1', 'GP5HJ84P7', 'S00352501', 1, 24, 178025)
 ), exact_spec(label, source_identifier, anilist_media_id, target_kind, scope) as (
   values
   ('Attack on Titan Final Chapters SP1', 'GR751KNZY|S4|E88', 146984, 'episode', 'main'),
@@ -59,7 +60,8 @@ with media_spec(label, series_id, source_season, first_number, last_number, anil
   group by source_identifier
 ), proposed as (
   select g.*,
-         coalesce(e.scope, case when m.label is not null then 'main'
+         coalesce(e.scope, case when m.label is not null and g.series_id = 'GP5HJ84P7'
+           then 'confirmed_other' when m.label is not null then 'main'
            when g.series_id in ('G6NQ5DWZ6','GR751KNZY','GR757DMKY','GY3VKX1MR')
            then 'held_bulk_extra' end) scope,
          coalesce(e.label,m.label) target_label,
@@ -71,7 +73,7 @@ with media_spec(label, series_id, source_season, first_number, last_number, anil
   left join media_spec m on g.series_id = m.series_id and g.source_season = m.source_season
     and g.source_number between m.first_number and m.last_number
   left join exact_spec e on e.source_identifier = g.source_identifier
-  where g.series_id in ('G6NQ5DWZ6','GR751KNZY','GR757DMKY','GY3VKX1MR')
+  where g.series_id in ('G6NQ5DWZ6','GR751KNZY','GR757DMKY','GY3VKX1MR','GP5HJ84P7')
      or e.source_identifier is not null
 )
 select source_identifier, series_id, source_season, source_number, scope,

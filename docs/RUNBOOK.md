@@ -1,6 +1,6 @@
 # Migration runbook
 
-Current Crunchyroll operations (2026-09-24): the reviewed historical undated import is complete. The incremental n8n transaction migrations `20260924200000` and `20260924201000` are applied. An [inactive n8n workflow and credential setup runbook](../scripts/crunchyroll/N8N_INCREMENTAL.md) replace the older runner proposal below. Its Crunchyroll credential still has a placeholder; the manual run and daily schedule have not started. Use that runbook for current activation and stop conditions.
+Current Crunchyroll operations (2026-09-24): the reviewed historical undated import is complete. The incremental n8n transaction and safe rejection migrations `20260924200000` through `20260924203000` are applied. The [n8n workflow runbook](../scripts/crunchyroll/N8N_INCREMENTAL.md) describes the successful authenticated manual run and published daily 09:00 UTC schedule. Use it for current behavior and stop conditions. Older runner proposals below are historical notes.
 
 The foundation and scoped advisor follow-up were applied 2026-09-23 as migration versions `20260923151159` and `20260923152134`. Read the [verification report](MIGRATION_VERIFICATION_2026-09-23.md) before imports.
 

@@ -1,9 +1,6 @@
 name: Crunchyroll season candidate queue (manual)
 
 on:
-  push:
-    branches: [main]
-    paths: ['scripts/crunchyroll/season_review_queue.py']
   workflow_dispatch:
     inputs:
       apply_review:

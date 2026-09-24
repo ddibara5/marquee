@@ -1,0 +1,812 @@
+[
+  {
+    "media_id": 205,
+    "series_id": "G6WEK0026",
+    "show_anchor_media_id": 205,
+    "new_show_name": null,
+    "label": "Samurai Champloo",
+    "total": 26,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 392,
+    "series_id": "GR9PKENW6",
+    "show_anchor_media_id": null,
+    "new_show_name": "Yu Yu Hakusho",
+    "label": "Yu Yu Hakusho",
+    "total": 112,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 1575,
+    "series_id": "GY2P9ED0Y",
+    "show_anchor_media_id": 1575,
+    "new_show_name": null,
+    "label": "Code Geass",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 2904,
+    "series_id": "GY2P9ED0Y",
+    "show_anchor_media_id": 1575,
+    "new_show_name": null,
+    "label": "Code Geass R2",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 4087,
+    "series_id": "G6Q4Z8PQR",
+    "show_anchor_media_id": 4087,
+    "new_show_name": null,
+    "label": "Michiko & Hatchin",
+    "total": 22,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 4898,
+    "series_id": "GYQ43P3E6",
+    "show_anchor_media_id": 4898,
+    "new_show_name": null,
+    "label": "Black Butler S1",
+    "total": 24,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 5114,
+    "series_id": "GRGGPG93R",
+    "show_anchor_media_id": 5114,
+    "new_show_name": null,
+    "label": "Fullmetal Alchemist: Brotherhood",
+    "total": 64,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 6707,
+    "series_id": "GYQ43P3E6",
+    "show_anchor_media_id": 4898,
+    "new_show_name": null,
+    "label": "Black Butler II",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 9919,
+    "series_id": "G649PJ0JY",
+    "show_anchor_media_id": 9919,
+    "new_show_name": null,
+    "label": "Blue Exorcist",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 11061,
+    "series_id": "GY3VKX1MR",
+    "show_anchor_media_id": 11061,
+    "new_show_name": null,
+    "label": "Hunter x Hunter (2011)",
+    "total": 148,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 11757,
+    "series_id": "GR49G9VP6",
+    "show_anchor_media_id": 11757,
+    "new_show_name": null,
+    "label": "Sword Art Online S1",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 16498,
+    "series_id": "GR751KNZY",
+    "show_anchor_media_id": 16498,
+    "new_show_name": null,
+    "label": "Attack on Titan S1",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 20594,
+    "series_id": "GR49G9VP6",
+    "show_anchor_media_id": 11757,
+    "new_show_name": null,
+    "label": "Sword Art Online II",
+    "total": 24,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 20605,
+    "series_id": "G6NV7Z50Y",
+    "show_anchor_media_id": 20605,
+    "new_show_name": null,
+    "label": "Tokyo Ghoul",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 20606,
+    "series_id": "GYQ43P3E6",
+    "show_anchor_media_id": 4898,
+    "new_show_name": null,
+    "label": "Black Butler Book of Circus",
+    "total": 10,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 20729,
+    "series_id": "GR757DMKY",
+    "show_anchor_media_id": 20729,
+    "new_show_name": null,
+    "label": "World Trigger S1",
+    "total": 73,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 20850,
+    "series_id": "G6NV7Z50Y",
+    "show_anchor_media_id": 20605,
+    "new_show_name": null,
+    "label": "Tokyo Ghoul Root A",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 20958,
+    "series_id": "GR751KNZY",
+    "show_anchor_media_id": 16498,
+    "new_show_name": null,
+    "label": "Attack on Titan S2",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 21425,
+    "series_id": "GYQ43P3E6",
+    "show_anchor_media_id": 4898,
+    "new_show_name": null,
+    "label": "Black Butler: Book of the Atlantic",
+    "total": 1,
+    "kind": "movie",
+    "season_number": null
+  },
+  {
+    "media_id": 21459,
+    "series_id": "G6NQ5DWZ6",
+    "show_anchor_media_id": 21459,
+    "new_show_name": null,
+    "label": "My Hero Academia S1",
+    "total": 13,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 21856,
+    "series_id": "G6NQ5DWZ6",
+    "show_anchor_media_id": 21459,
+    "new_show_name": null,
+    "label": "My Hero Academia S2",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 21861,
+    "series_id": "G649PJ0JY",
+    "show_anchor_media_id": 9919,
+    "new_show_name": null,
+    "label": "Blue Exorcist: Kyoto Saga",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 97940,
+    "series_id": "GRE50KV36",
+    "show_anchor_media_id": 97940,
+    "new_show_name": null,
+    "label": "Black Clover",
+    "total": 170,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 99147,
+    "series_id": "GR751KNZY",
+    "show_anchor_media_id": 16498,
+    "new_show_name": null,
+    "label": "Attack on Titan S3 part 1",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 100166,
+    "series_id": "G6NQ5DWZ6",
+    "show_anchor_media_id": 21459,
+    "new_show_name": null,
+    "label": "My Hero Academia S3",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 100182,
+    "series_id": "GR49G9VP6",
+    "show_anchor_media_id": 11757,
+    "new_show_name": null,
+    "label": "Sword Art Online Alicization",
+    "total": 24,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 101922,
+    "series_id": "GY5P48XEY",
+    "show_anchor_media_id": 101922,
+    "new_show_name": null,
+    "label": "Demon Slayer S1",
+    "total": 26,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 104276,
+    "series_id": "G6NQ5DWZ6",
+    "show_anchor_media_id": 21459,
+    "new_show_name": null,
+    "label": "My Hero Academia S4",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 104578,
+    "series_id": "GR751KNZY",
+    "show_anchor_media_id": 16498,
+    "new_show_name": null,
+    "label": "Attack on Titan S3 part 2",
+    "total": 10,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 105310,
+    "series_id": "GYQWNXPZY",
+    "show_anchor_media_id": 105310,
+    "new_show_name": null,
+    "label": "Fire Force S1",
+    "total": 24,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 105333,
+    "series_id": "GYEXQKJG6",
+    "show_anchor_media_id": 105333,
+    "new_show_name": null,
+    "label": "Dr. STONE S1",
+    "total": 24,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 105334,
+    "series_id": "G6ZJMGEXY",
+    "show_anchor_media_id": null,
+    "new_show_name": "Fruits Basket (2019)",
+    "label": "Fruits Basket (2019) S1",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 108632,
+    "series_id": "GRGG9798R",
+    "show_anchor_media_id": 21355,
+    "new_show_name": null,
+    "label": "Re:Zero S2 part 1",
+    "total": 13,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 108759,
+    "series_id": "GR49G9VP6",
+    "show_anchor_media_id": 11757,
+    "new_show_name": null,
+    "label": "Sword Art Online Underworld part 1",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 110277,
+    "series_id": "GR751KNZY",
+    "show_anchor_media_id": 16498,
+    "new_show_name": null,
+    "label": "Attack on Titan Final part 1",
+    "total": 16,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 113415,
+    "series_id": "GRDV0019R",
+    "show_anchor_media_id": 113415,
+    "new_show_name": null,
+    "label": "Jujutsu Kaisen S1",
+    "total": 24,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 113936,
+    "series_id": "GYEXQKJG6",
+    "show_anchor_media_id": 105333,
+    "new_show_name": null,
+    "label": "Dr. STONE Stone Wars",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 114087,
+    "series_id": "GR757DMKY",
+    "show_anchor_media_id": 20729,
+    "new_show_name": null,
+    "label": "World Trigger S2",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 114308,
+    "series_id": "GR49G9VP6",
+    "show_anchor_media_id": 11757,
+    "new_show_name": null,
+    "label": "Sword Art Online Underworld part 2",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 117193,
+    "series_id": "G6NQ5DWZ6",
+    "show_anchor_media_id": 21459,
+    "new_show_name": null,
+    "label": "My Hero Academia S5",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 119661,
+    "series_id": "GRGG9798R",
+    "show_anchor_media_id": 21355,
+    "new_show_name": null,
+    "label": "Re:Zero S2 part 2",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 126403,
+    "series_id": "GP5HJ8E81",
+    "show_anchor_media_id": 126403,
+    "new_show_name": null,
+    "label": "Link Click S1",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 127230,
+    "series_id": "GVDHX8QNW",
+    "show_anchor_media_id": 127230,
+    "new_show_name": null,
+    "label": "Chainsaw Man",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 127400,
+    "series_id": "GR757DMKY",
+    "show_anchor_media_id": 20729,
+    "new_show_name": null,
+    "label": "World Trigger S3",
+    "total": 14,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 128893,
+    "series_id": "GJ0H7Q5ZJ",
+    "show_anchor_media_id": 128893,
+    "new_show_name": null,
+    "label": "Hell's Paradise S1",
+    "total": 13,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 129874,
+    "series_id": "GY5P48XEY",
+    "show_anchor_media_id": 101922,
+    "new_show_name": null,
+    "label": "Demon Slayer Mugen Train TV",
+    "total": 7,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 131518,
+    "series_id": "GYEXQKJG6",
+    "show_anchor_media_id": 105333,
+    "new_show_name": null,
+    "label": "Dr. STONE New World part 1",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 131681,
+    "series_id": "GR751KNZY",
+    "show_anchor_media_id": 16498,
+    "new_show_name": null,
+    "label": "Attack on Titan Final part 2",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 136484,
+    "series_id": "GP5HJ8E81",
+    "show_anchor_media_id": 126403,
+    "new_show_name": null,
+    "label": "Link Click S2 (2023)",
+    "total": 12,
+    "kind": "season",
+    "season_number": 2
+  },
+  {
+    "media_id": 137822,
+    "series_id": "G4PH0WEKE",
+    "show_anchor_media_id": 137822,
+    "new_show_name": null,
+    "label": "Blue Lock S1",
+    "total": 24,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 139630,
+    "series_id": "G6NQ5DWZ6",
+    "show_anchor_media_id": 21459,
+    "new_show_name": null,
+    "label": "My Hero Academia S6",
+    "total": 25,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 140960,
+    "series_id": "G4PH0WXVJ",
+    "show_anchor_media_id": 140960,
+    "new_show_name": null,
+    "label": "Spy x Family cour 1",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 142329,
+    "series_id": "GY5P48XEY",
+    "show_anchor_media_id": 101922,
+    "new_show_name": null,
+    "label": "Demon Slayer Entertainment District",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 142838,
+    "series_id": "G4PH0WXVJ",
+    "show_anchor_media_id": 140960,
+    "new_show_name": null,
+    "label": "Spy x Family cour 2",
+    "total": 13,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 145064,
+    "series_id": "GRDV0019R",
+    "show_anchor_media_id": 113415,
+    "new_show_name": null,
+    "label": "Jujutsu Kaisen S2",
+    "total": 23,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 145139,
+    "series_id": "GY5P48XEY",
+    "show_anchor_media_id": 101922,
+    "new_show_name": null,
+    "label": "Demon Slayer Swordsmith Village",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 146984,
+    "series_id": "GR751KNZY",
+    "show_anchor_media_id": 16498,
+    "new_show_name": null,
+    "label": "Attack on Titan Final Chapters SP1",
+    "total": 1,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 151807,
+    "series_id": "GDKHZEJ0K",
+    "show_anchor_media_id": 151807,
+    "new_show_name": null,
+    "label": "Solo Leveling S1",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 153288,
+    "series_id": "GG5H5XQ7D",
+    "show_anchor_media_id": 153288,
+    "new_show_name": null,
+    "label": "Kaiju No. 8 S1",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 154587,
+    "series_id": "GG5H5XQX4",
+    "show_anchor_media_id": 154587,
+    "new_show_name": null,
+    "label": "Frieren S1",
+    "total": 28,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 155418,
+    "series_id": "GG5H5XQ24",
+    "show_anchor_media_id": 155418,
+    "new_show_name": null,
+    "label": "The Great Cleric",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 158927,
+    "series_id": "G4PH0WXVJ",
+    "show_anchor_media_id": 140960,
+    "new_show_name": null,
+    "label": "Spy x Family Season 2",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 158931,
+    "series_id": "G649PJ0JY",
+    "show_anchor_media_id": 9919,
+    "new_show_name": null,
+    "label": "Blue Exorcist: Shimane Illuminati Saga",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 161645,
+    "series_id": "G3KHEVDJ7",
+    "show_anchor_media_id": null,
+    "new_show_name": "The Apothecary Diaries",
+    "label": "The Apothecary Diaries S1",
+    "total": 24,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 162314,
+    "series_id": "GR751KNZY",
+    "show_anchor_media_id": 16498,
+    "new_show_name": null,
+    "label": "Attack on Titan Final Chapters SP2",
+    "total": 1,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 162670,
+    "series_id": "GYEXQKJG6",
+    "show_anchor_media_id": 105333,
+    "new_show_name": null,
+    "label": "Dr. STONE New World part 2",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 163139,
+    "series_id": "G6NQ5DWZ6",
+    "show_anchor_media_id": 21459,
+    "new_show_name": null,
+    "label": "My Hero Academia S7",
+    "total": 21,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 163146,
+    "series_id": "G4PH0WEKE",
+    "show_anchor_media_id": 137822,
+    "new_show_name": null,
+    "label": "Blue Lock U-20 S2",
+    "total": 14,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 166240,
+    "series_id": "GY5P48XEY",
+    "show_anchor_media_id": 101922,
+    "new_show_name": null,
+    "label": "Demon Slayer Hashira Training",
+    "total": 8,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 166715,
+    "series_id": "GYQ43P3E6",
+    "show_anchor_media_id": 4898,
+    "new_show_name": null,
+    "label": "Black Butler Public School Arc",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 172019,
+    "series_id": "GYEXQKJG6",
+    "show_anchor_media_id": 105333,
+    "new_show_name": null,
+    "label": "Dr. STONE Science Future part 1",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 172463,
+    "series_id": "GRDV0019R",
+    "show_anchor_media_id": 113415,
+    "new_show_name": null,
+    "label": "Jujutsu Kaisen Culling Game part 1",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 176311,
+    "series_id": "G649PJ0JY",
+    "show_anchor_media_id": 9919,
+    "new_show_name": null,
+    "label": "Blue Exorcist: Beyond the Snow Saga",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 176496,
+    "series_id": "GDKHZEJ0K",
+    "show_anchor_media_id": 151807,
+    "new_show_name": null,
+    "label": "Solo Leveling S2",
+    "total": 13,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 178025,
+    "series_id": "GP5HJ84P7",
+    "show_anchor_media_id": null,
+    "new_show_name": "Gachiakuta",
+    "label": "Gachiakuta S1",
+    "total": 24,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 178754,
+    "series_id": "GG5H5XQ7D",
+    "show_anchor_media_id": 153288,
+    "new_show_name": null,
+    "label": "Kaiju No. 8 S2 TV",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 179999,
+    "series_id": "GG5H5XQ7D",
+    "show_anchor_media_id": 153288,
+    "new_show_name": null,
+    "label": "Kaiju No. 8: Hoshina's Day Off",
+    "total": 1,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 182255,
+    "series_id": "GG5H5XQX4",
+    "show_anchor_media_id": 154587,
+    "new_show_name": null,
+    "label": "Frieren S2",
+    "total": 10,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 182896,
+    "series_id": "G6NQ5DWZ6",
+    "show_anchor_media_id": 21459,
+    "new_show_name": null,
+    "label": "My Hero Academia Final",
+    "total": 11,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 185880,
+    "series_id": "G649PJ0JY",
+    "show_anchor_media_id": 9919,
+    "new_show_name": null,
+    "label": "Blue Exorcist: The Blue Night Saga",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  },
+  {
+    "media_id": 189117,
+    "series_id": "GYEXQKJG6",
+    "show_anchor_media_id": 105333,
+    "new_show_name": null,
+    "label": "Dr. STONE Science Future part 2",
+    "total": 12,
+    "kind": "season",
+    "season_number": null
+  }
+]

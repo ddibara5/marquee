@@ -1,6 +1,28 @@
 # Crunchyroll historical-watch review plan
 
-Status: nine owner-reviewed series-to-show mappings applied 2026-09-24. No season or episode mapping, schema migration, canonical watch, or scheduler is authorized by this document.
+Status: approved historical backfill applied 2026-09-24. The older proposal sections below describe the review snapshot and are retained as an audit trail. No recurring scheduler is active.
+
+## Applied result (2026-09-24)
+
+Dave approved the Marquee-only undated migration and the guarded 1,487-identifier replay after reviewing the named coverage. The two migrations are `20260924190000_marquee_undated_completions.sql` and `20260924191500_marquee_completion_coverage_views.sql`. The replay uses `approved_media_manifest.json` and `approved_backfill_sql.py` with the read-only identity proposals. All writes are scoped to `marquee_*` objects; no GameDeck table or n8n workflow was changed.
+
+| Verified live result | Count |
+| --- | ---: |
+| AniList catalog media mappings after adding 51 catalog-only targets | 101 |
+| Approved Crunchyroll source identifier mappings: 1,486 episodes, one film | 1,487 |
+| Distinct undated episode completions | 1,660 |
+| Distinct undated film completions | 4 |
+| Complete-flag Crunchyroll raw evidence links | 3,007 |
+| Full-progress AniList raw evidence links | 985 |
+| Canonical episodes carrying both Crunchyroll and AniList evidence | 808 |
+| Crunchyroll dated watch-history rows | 0 |
+| Held complete source IDs (not backfilled) | 37 |
+
+The 1,660 episode completions comprise 1,486 identified Crunchyroll episodes and 174 additional episodes from 30 fully completed AniList seasons. Four films are the owner-selected Black Butler: Book of the Atlantic plus three manually completed AniList films. The 808 overlaps count once. The episode coverage view unions undated completions with independently dated Trakt history by canonical episode ID; its current count is 4,021 distinct episodes across anime and non-anime, with no confirmed dated/undated episode overlap. The equivalent movie view counts films once. Source playback timestamps remain in `marquee_ingest_raw`; neither view invents a date or rewatch. The 37 held IDs, partial-only playback, missing-panel events, One Piece and Fairy Tail remain out of personal completions.
+
+Fully covered seasons now get a Marquee completed status, including Frieren Season 2, Hell's Paradise Season 1, Gachiakuta and the 2023 Link Click Season 2. Imported AniList raw state remains intact, and the later Link Click Bridon Arc remains planned. Existing explicit manual status locks are respected. A future AniList replay must preserve the derived completed status; the current importer is insert-only for existing statuses.
+
+The monolithic replay initially timed out and rolled back without episode or completion rows. Splitting it into `episodes`, `mappings`, `completions`, `evidence`, and `status` transactions succeeded; each phase guards the 7,933-event snapshot and GameDeck's 53/154 baseline. The mapping, evidence and status phases were rerun without creating duplicates. A partial-flag evidence insert was rejected by the live guard; authenticated access saw 1,664 own completion rows and zero with a different user ID. GameDeck remained at 53 ranks and 154 comparisons. The Supabase security advisor reports the evidence table's deliberate service-only RLS (no authenticated policy); other warnings concern preexisting GameDeck or Auth objects. No schedule was activated.
 
 ## Owner decisions after the named review (2026-09-24)
 

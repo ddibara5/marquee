@@ -1,0 +1,38 @@
+name: Crunchyroll raw history stage (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Write raw observations and review queues only; no canonical watches
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marquee-crunchyroll-raw-stage
+  cancel-in-progress: false
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Postgres driver
+        run: pip install "psycopg[binary]==3.3.6"
+      - name: Inspect or stage full source snapshot
+        shell: bash
+        run: |
+          args=(--user-id c566e7e0-880a-430d-85df-c40484144a91)
+          if [[ "$STAGE" == "true" ]]; then args+=(--stage); fi
+          python3 scripts/crunchyroll/stage_history.py "${args[@]}"
+        env:
+          STAGE: ${{ inputs.stage }}
+          CRUNCHYROLL_ETP_RT: ${{ secrets.CRUNCHYROLL_ETP_RT }}
+          MARQUEE_DATABASE_URL: ${{ secrets.MARQUEE_DATABASE_URL }}

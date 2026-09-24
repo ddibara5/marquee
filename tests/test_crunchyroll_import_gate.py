@@ -29,6 +29,12 @@ class ImportGateTests(unittest.TestCase):
             with self.subTest(pages=pages), self.assertRaises(ProbeError):
                 inspect(pages, minimum=2)
 
+    def test_season_identifier_cannot_cross_series(self):
+        other = item("event-2", panel="panel-b")
+        other["panel"]["episode_metadata"]["series_id"] = "series-b"
+        with self.assertRaises(ProbeError):
+            inspect([[item("event-1"), other]], minimum=2)
+
     def test_incomplete_iterator_or_missing_date_never_passes(self):
         def broken():
             yield [item("event-1")]

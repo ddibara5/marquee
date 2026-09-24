@@ -21,6 +21,7 @@ def inspect(pages, *, minimum=BASELINE):
     counts = Counter()
     events = set()
     panels = {}
+    series_by_season = {}
     oldest = newest = None
     for page in pages:
         counts["pages"] += 1
@@ -59,6 +60,9 @@ def inspect(pages, *, minimum=BASELINE):
             if not all(isinstance(v, str) and v for v in (series_id, season_id)):
                 counts["without_series_or_season_id"] += 1
                 continue
+            if season_id in series_by_season and series_by_season[season_id] != series_id:
+                raise ProbeError("Source season ID belongs to multiple series")
+            series_by_season[season_id] = series_id
             number = metadata.get("episode_number")
             if type(number) is int and number > 0:
                 pass

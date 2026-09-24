@@ -20,7 +20,7 @@ jobs:
       - name: Install temporary report recipient certificate
         run: |
           cat >/tmp/marquee-review-recipient.pem <<'CERT'
-                    -----BEGIN CERTIFICATE-----
+          -----BEGIN CERTIFICATE-----
           MIIDMTCCAhmgAwIBAgIUXH7qn/Et6/kPLdNQf7ARVLNhtgcwDQYJKoZIhvcNAQEL
           BQAwKDEmMCQGA1UEAwwdTWFycXVlZSBwcml2YXRlIHNlcmllcyByZXZpZXcwHhcN
           MjYwOTI0MDIzNjMzWhcNMjYwOTI1MDIzNjMzWjAoMSYwJAYDVQQDDB1NYXJxdWVl

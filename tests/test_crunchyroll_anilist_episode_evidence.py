@@ -63,6 +63,23 @@ class AniListEvidenceTests(unittest.TestCase):
         self.assertIsNone(crunchyroll_series_id(
             "https://www.crunchyroll.com/watch/SOURCE1"))
 
+    def test_shared_series_requires_consistent_canonical_show(self):
+        rows = {"a": {"candidates": [{"anilist_media_id": "101",
+                                       "canonical_season_id": "season-1"}]},
+                "b": {"candidates": [{"anilist_media_id": "202",
+                                       "canonical_season_id": "season-2"}]}}
+        records = [event("a", 1, "2025-01-01"), event("b", 1, "2026-01-01")]
+        metadata = {101: (12, 2025, {"series-1"}),
+                    202: (12, 2026, {"series-1"})}
+        same = evidence(records, rows, metadata,
+                        {"season-1": "show-1", "season-2": "show-1"})
+        self.assertEqual(same["distinct_exact_linked_source_series"], 1)
+        self.assertEqual(same["exact_linked_series_with_multiple_anilist_media"], 1)
+        self.assertEqual(same["exact_linked_series_with_one_canonical_show"], 1)
+        conflict = evidence(records, rows, metadata,
+                            {"season-1": "show-1", "season-2": "show-2"})
+        self.assertEqual(conflict["exact_linked_series_with_conflicting_canonical_shows"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -89,7 +89,29 @@ def crunchyroll_series_id(url):
     return parts[1] if re.fullmatch(r"[A-Za-z0-9_-]+", parts[1]) else None
 
 
-def evidence(records, review_rows, metadata):
+def canonical_show_targets(database_url, season_ids):
+    """Read only the canonical show FK for candidate AniList seasons."""
+    if not database_url or not season_ids:
+        raise ReviewError("Candidate catalog lookup is incomplete")
+    try:
+        import psycopg
+        with psycopg.connect(database_url, connect_timeout=15) as conn:
+            with conn.cursor() as cur:
+                cur.execute("set transaction read only")
+                cur.execute("""select id::text, show_title_id::text
+                    from public.marquee_seasons where id = any(%s::uuid[])""",
+                    (list(season_ids),))
+                targets = dict(cur.fetchall())
+        if set(targets) != set(season_ids):
+            raise ReviewError("Candidate canonical season set changed")
+        return targets
+    except ReviewError:
+        raise
+    except Exception:
+        raise ReviewError("Could not load canonical show targets") from None
+
+
+def evidence(records, review_rows, metadata, show_targets=None):
     source = defaultdict(lambda: {"numbers": set(), "air_years": set(), "series": set()})
     for event in records:
         panel = event.get("panel")
@@ -107,6 +129,8 @@ def evidence(records, review_rows, metadata):
     out = defaultdict(int)
     matched_series = set()
     matched_media = set()
+    matched_series_to_shows = defaultdict(set)
+    matched_series_to_media = defaultdict(set)
     for season_id, row in review_rows.items():
         if len(row["candidates"]) != 1 or season_id not in source:
             continue
@@ -126,6 +150,10 @@ def evidence(records, review_rows, metadata):
                 out["exact_source_series_id_in_anilist_link"] += 1
                 matched_series.add(series_id)
                 matched_media.add(media_id)
+                matched_series_to_media[series_id].add(media_id)
+                if show_targets is not None:
+                    target_season = row["candidates"][0]["canonical_season_id"]
+                    matched_series_to_shows[series_id].add(show_targets[target_season])
                 if (total is not None and numbers and max(numbers) <= total
                         and year is not None and years
                         and min(years) - 1 <= year <= max(years) + 1):
@@ -151,6 +179,13 @@ def evidence(records, review_rows, metadata):
                 out["year_outside_episode_air_span"] += 1
     out["distinct_exact_linked_source_series"] = len(matched_series)
     out["distinct_exact_linked_anilist_media"] = len(matched_media)
+    out["exact_linked_series_with_multiple_anilist_media"] = sum(
+        len(media) > 1 for media in matched_series_to_media.values())
+    if show_targets is not None:
+        out["exact_linked_series_with_one_canonical_show"] = sum(
+            len(shows) == 1 for shows in matched_series_to_shows.values())
+        out["exact_linked_series_with_conflicting_canonical_shows"] = sum(
+            len(shows) > 1 for shows in matched_series_to_shows.values())
     return dict(out)
 
 
@@ -165,10 +200,14 @@ def main(argv=None):
         if analyze(records, seasons, mappings, trakt)["approved_crunchyroll_episode_mappings"]:
             raise ReviewError("Approved mappings exist; refresh candidate review")
         rows, _ = prepare(records, seasons)
+        candidate_season_ids = {c["canonical_season_id"] for row in rows.values()
+                                if len(row["candidates"]) == 1 for c in row["candidates"]}
+        show_targets = canonical_show_targets(os.environ.get("MARQUEE_DATABASE_URL"),
+                                              candidate_season_ids)
         media_ids = {c["anilist_media_id"] for row in rows.values()
                      if len(row["candidates"]) == 1 for c in row["candidates"]}
         metadata = anilist_metadata(media_ids)
-        print(json.dumps({"review_evidence": evidence(records, rows, metadata),
+        print(json.dumps({"review_evidence": evidence(records, rows, metadata, show_targets),
                           "anilist_media_checked": len(metadata),
                           "note": "Counts and years are review clues only; no mapping, date or watch was written."},
                          sort_keys=True))

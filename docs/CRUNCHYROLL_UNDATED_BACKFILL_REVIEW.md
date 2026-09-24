@@ -12,11 +12,11 @@ Keep the other **20 bulk-marked extras** separate: My Hero Academia's four *Memo
 
 Dave separately confirmed finishing Link Click episode 5.5, Kaiju No. 8 *Hoshina's Day Off*, and the film Black Butler: Book of the Atlantic. These are **three distinct completion candidates**, not ordinary TV episode numbers. The Black Butler film needs a movie identity. Jujutsu Kaisen 0 was not selected and stays in review; non-selection does not establish that it was unwatched.
 
-| Owner-confirmed separate item | Stable Crunchyroll identifier | Identity treatment |
+| Owner-confirmed separate item | Stable Crunchyroll identifier | AniList catalog target and treatment |
 | --- | --- | --- |
-| Link Click 5.5, *Marrying by Contesting* | `GP5HJ8E81|S00113950|E6` | Special labeled 5.5; not regular episode 6. |
-| Kaiju No. 8, *Hoshina's Day Off* | `GG5H5XQ7D|S00352541|E1` | Special embedded in a Season 2 source bundle; not regular Season 2 episode 1. |
-| Black Butler: Book of the Atlantic | `GYQ43P3E6|M|E0` | Film; requires its own canonical movie target. |
+| Link Click 5.5, *Marrying by Contesting* | `GP5HJ8E81\|S00113950\|E6` | No standalone AniList media ID verified; create a separately reviewed special episode identity. Do not count as regular episode 6 of the 11-episode first season. |
+| Kaiju No. 8, *Hoshina's Day Off* | `GG5H5XQ7D\|S00352541\|E1` | [179999](https://anilist.co/anime/179999), a separate special linked as a side story to the first season. Not regular Season 2 episode 1, despite the Crunchyroll bundle. |
+| Black Butler: Book of the Atlantic | `GYQ43P3E6\|M\|E0` | [21425](https://anilist.co/anime/21425), a movie. Requires its own canonical movie target and undated film completion. |
 
 For comparison, the nine language-version observations of the **unselected** *Jujutsu Kaisen 0* share one stable identifier, `GMTE00194450|E00194450A0030598`. Hold this single film candidate rather than counting nine viewings. These IDs were checked directly against the staged raw episode metadata; none has a Crunchyroll canonical mapping yet.
 
@@ -52,6 +52,49 @@ For auditing the owner scope decision, the 526 source identifiers break down as 
 | Hunter x Hunter `GY3VKX1MR` | One 2011 series with episodes 1–148. **148** in all. | None from this bulk group. |
 
 These are ranges of unique Crunchyroll metadata identifiers **after** grouping observed dubs; a language-specific source season ID can differ for the same identifier. Source season/version IDs and episode numbering still need to be reconciled to verified AniList catalog season IDs before creating canonical episode rows or statuses. AniList's imported relation graph supplies first-sequel anchors (My Hero Academia `21459` → `21856`, Attack on Titan `16498` → `20958`, World Trigger `20729` → `114087`) but does not by itself resolve their later seasons or specials. Hunter x Hunter's imported AniList media ID is `11061`.
+
+### Proposed AniList catalog targets for the 506 confirmed main-story source IDs
+
+The table below joins a **stable Crunchyroll series + season identifier + exact episode-number interval** to a separately identified AniList media entry. The named AniList pages publish matching format and episode totals; the staged Crunchyroll identifiers cover each interval exactly once, with no inconsistent episode numbers within any identifier's observed versions. The source air-year breaks corroborate Attack on Titan's two splits. These are **read-only identity proposals**, not applied `marquee_source_mappings` or watches. A source season is not always a canonical season: Attack on Titan's one source `S3` spans two AniList entries, and source `S4` spans four.
+
+| Crunchyroll series and stable season code | Exact source episodes → AniList media ID | Unique complete IDs | AniList manual record |
+| --- | --- | ---: | --- |
+| My Hero Academia `G6NQ5DWZ6\|S00003205` | 1–13 → [21459](https://anilist.co/anime/21459) | 13 | Completed 13/13 |
+| `G6NQ5DWZ6\|S00003207` | 14–38 → [21856](https://anilist.co/anime/21856) | 25 | Absent; use Crunchyroll evidence |
+| `G6NQ5DWZ6\|S00003757` | 39–63 → [100166](https://anilist.co/anime/100166) | 25 | Absent; use Crunchyroll evidence |
+| `G6NQ5DWZ6\|S00089871` | 64–88 → [104276](https://anilist.co/anime/104276) | 25 | Absent; use Crunchyroll evidence |
+| `G6NQ5DWZ6\|S00113970` | 89–113 → [117193](https://anilist.co/anime/117193) | 25 | Absent; use Crunchyroll evidence |
+| `G6NQ5DWZ6\|S00256606` | 114–138 → [139630](https://anilist.co/anime/139630) | 25 | Absent; use Crunchyroll evidence |
+| `G6NQ5DWZ6\|S00335713` | 139–159 → [163139](https://anilist.co/anime/163139) | 21 | Absent; use Crunchyroll evidence |
+| `G6NQ5DWZ6\|S00355339` | 160–170 → [182896](https://anilist.co/anime/182896) | 11 | Absent; use Crunchyroll evidence |
+| Attack on Titan `GR751KNZY\|S1` | 1–25 → [16498](https://anilist.co/anime/16498) | 25 | Completed 25/25 |
+| `GR751KNZY\|S2` | 26–37 → [20958](https://anilist.co/anime/20958) | 12 | Absent; use Crunchyroll evidence |
+| `GR751KNZY\|S3` | 38–49 (2018) → [99147](https://anilist.co/anime/99147) | 12 | Absent; use Crunchyroll evidence |
+| `GR751KNZY\|S3` | 50–59 (2019) → [104578](https://anilist.co/anime/104578) | 10 | Absent; use Crunchyroll evidence |
+| `GR751KNZY\|S4` | 60–75 (2020–21) → [110277](https://anilist.co/anime/110277) | 16 | Absent; use Crunchyroll evidence |
+| `GR751KNZY\|S4` | 76–87 (2022) → [131681](https://anilist.co/anime/131681) | 12 | Absent; use Crunchyroll evidence |
+| `GR751KNZY\|S4\|E88` | Final Chapters `SP1` → [146984](https://anilist.co/anime/146984) | 1 | Absent; provisional main-story scope |
+| `GR751KNZY\|S4\|E91` | Final Chapters `SP2` → [162314](https://anilist.co/anime/162314) | 1 | Absent; provisional main-story scope |
+| World Trigger `GR757DMKY\|S00170952` | 1–73 → [20729](https://anilist.co/anime/20729) | 73 | Completed 73/73 |
+| `GR757DMKY\|S00170965` | 1–12 → [114087](https://anilist.co/anime/114087) | 12 | Absent; use Crunchyroll evidence |
+| `GR757DMKY\|S00310086` | 1–14 → [127400](https://anilist.co/anime/127400) | 14 | Absent; use Crunchyroll evidence |
+| Hunter x Hunter `GY3VKX1MR\|S1` | 1–148 (2011) → [11061](https://anilist.co/anime/11061) | 148 | Completed 148/148 |
+
+Total: **506** unique complete source identifiers. The four AniList manual first-season entries cover **259** of those same narrative episodes; **247** proposed source identifiers extend beyond them (245 regular TV episodes and two Final Chapters). No additional episode is inferred from a missing panel, partial-only playback, or an AniList user-list absence. Source episode numbers are translated to **local AniList season numbers** within each interval (for example Attack on Titan source 50–59 become part 2 episodes 1–10), after confirming each media's published total. The two Final Chapters have their own `SPECIAL` media IDs and require the final scope confirmation already noted above. The 20 held bulk extras are outside every interval in this table, including five My Hero Academia OVAs embedded in numbered source season codes. All source playback timestamps remain undated evidence.
+
+The [read-only per-identifier proposal](../scripts/crunchyroll/bulk_identity_proposal.sql) was run against the staged snapshot. It returned **529 distinct complete source identifiers**: 506 main-story candidates, 20 held extras and the three owner-selected specials/film; every group had consistent series/number evidence across its observed versions. The 504 regular main-story IDs yield **504 distinct AniList media/local-episode keys**; the other two main-story IDs are the separate Final Chapters entries. The proposal neither inserts catalog rows nor assumes that all 529 were separately dated watches. The target media set contains **20 AniList IDs**, four already seeded by Dave's user list and 16 catalog identities still absent from Marquee. Its matching rules must be reviewed before any write; no source-season-wide mapping may swallow the Attack on Titan part splits or My Hero Academia's OVAs.
+
+### Other identified catalog targets and status differences
+
+| Show and source season | Proposed AniList identity | Complete Crunchyroll evidence | Imported AniList user state | Review outcome |
+| --- | --- | --- | --- | --- |
+| Frieren Season 2 `GG5H5XQX4\|S00365545` | [182255](https://anilist.co/anime/182255), 10 episodes | 1–10 (10) | Planning 0 | Full season coverage; update Marquee to completed after episode identity is locked. |
+| Hell's Paradise Season 1 `GJ0H7Q5ZJ\|S00198812` | [128893](https://anilist.co/anime/128893), 13 episodes | 1–13 (13) | Watching 0 | Full season coverage; update Marquee to completed after episode identity is locked. |
+| Link Click Season 2 `GP5HJ8E81\|S00303342` | [136484](https://anilist.co/anime/136484), 12 episodes | 1–12 (12) | No user-list entry for this media; imported [170166](https://anilist.co/anime/170166) is the later Bridon Arc | Full 2023 season candidate; correct the wrong catalog target without touching Bridon Arc's user status. |
+| Blue Lock Season 2 `G4PH0WEKE\|S00344677` | [163146](https://anilist.co/anime/163146), 14 episodes | 25–33 and 35–38 (13); 34 is partial only | No user-list entry for this media; Season 1 completed 24/24 | Propose 13 undated season-two completions after the show/season episode identity review; leave episode 34 uncompleted and do not mark the season completed. |
+| Gachiakuta `GP5HJ84P7\|S00352501` | [178025](https://anilist.co/anime/178025), 24 episodes | 1–24 (24) with individually spaced Jan–Feb 2026 timestamps | No user-list entry | Catalog total fits, but Dave recognized only the show. Hold the individual watch scope/date review; AniList silence is neutral. |
+
+These are catalog **identity** proposals corroborated by stable source season codes, source episode coverage, AniList media IDs and published episode totals. They do not use missing AniList user-list entries as negative watch evidence. Source `date_played` stays raw even where timestamps look plausible. The 13 Blue Lock Season 2 IDs do not prove its missing episode 34 was finished. A completed AniList Season 1 record remains the manual authority for its 24 regular episodes.
 
 The other 21 source series have 614 completed source identifiers in total, with unresolved source-to-AniList season and episode identities. They include Sword Art Online, Dr. Stone, Blue Exorcist, Fullmetal Alchemist: Brotherhood, Demon Slayer, Jujutsu Kaisen, Code Geass, Spy x Family, Re:Zero, Solo Leveling, Tokyo Ghoul, Michiko & Hatchin, The Apothecary Diaries, Fire Force, Yu Yu Hakusho, Fruits Basket and the separate *Jujutsu Kaisen 0* film; four more series have only partial playback. Generic numbered-season candidates still contain wrong-show suggestions (for example Re:Zero Season 2 and Spy x Family Season 2), and the imported AniList **catalog** has only the 47 seasons and 3 films present in Dave's 50-entry user-list seed. Expand the catalog independently of the user list and rerun/review the candidate queue before approving season mappings.
 

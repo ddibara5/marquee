@@ -2,25 +2,17 @@
   "name": "Marquee | Crunchyroll incremental history (review first)",
   "nodes": [
     {
+      "parameters": {},
       "id": "marquee_manual",
       "name": "Run once for review",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
         0,
-        300
-      ],
-      "parameters": {}
+        304
+      ]
     },
     {
-      "id": "marquee_schedule",
-      "name": "Daily at 09:00 UTC (enable after manual check)",
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.4,
-      "position": [
-        0,
-        480
-      ],
       "parameters": {
         "rule": {
           "interval": [
@@ -29,20 +21,19 @@
               "expression": "0 9 * * *"
             }
           ]
-        },
-        "misfirePolicy": "skip"
+        }
       },
-      "disabled": true
+      "id": "marquee_schedule",
+      "name": "Daily at 09:00 UTC (enable after manual check)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        480
+      ],
+      "disabled": false
     },
     {
-      "id": "marquee_token",
-      "name": "Exchange Crunchyroll cookie",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
-      "position": [
-        260,
-        300
-      ],
       "parameters": {
         "method": "POST",
         "url": "https://www.crunchyroll.com/auth/v1/token",
@@ -84,35 +75,35 @@
           ]
         },
         "options": {
-          "timeout": 30000,
           "response": {
             "response": {
               "responseFormat": "json"
             }
-          }
+          },
+          "timeout": 30000
         }
       },
+      "id": "marquee_token",
+      "name": "Exchange Crunchyroll cookie",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "position": [
+        272,
+        304
+      ],
+      "onError": "continueErrorOutput",
       "credentials": {
         "httpHeaderAuth": {
           "id": "REPLACE_WITH_N8N_COOKIE_CREDENTIAL_ID",
           "name": "Marquee Crunchyroll cookie"
         }
-      },
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 3000
+      }
     },
     {
-      "id": "marquee_account",
-      "name": "Read Crunchyroll account",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
-      "position": [
-        520,
-        300
-      ],
       "parameters": {
-        "method": "GET",
         "url": "https://www.crunchyroll.com/accounts/v1/me",
         "sendHeaders": true,
         "headerParameters": {
@@ -124,7 +115,109 @@
           ]
         },
         "options": {
-          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "marquee_account",
+      "name": "Read Crunchyroll account",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "position": [
+        528,
+        304
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const id=$input.first().json.account_id;if(typeof id!=='string'||!/^[a-zA-Z0-9-]{10,128}$/.test(id))throw Error('Account changed shape');return [{json:{account_id:id}}];"
+      },
+      "id": "marquee_check",
+      "name": "Validate Crunchyroll account",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        304
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const pages=$input.all().map(i=>i.json),account=$('Validate Crunchyroll account').first().json.account_id,path='/content/v1/watch-history/'+account,events=[],ids=new Set(),seenLinks=new Set();\nif(pages.length<2||pages.length>20)throw Error('Invalid history page count');\npages.forEach((p,i)=>{if(!Array.isArray(p.items)||p.items.length>20)throw Error('History page changed shape');\nfor(const e of p.items){if(!e||typeof e.id!=='string'||!e.id||ids.has(e.id)||typeof e.date_played!=='string'||!/^\\d{4}-\\d\\d-\\d\\dT/.test(e.date_played)||!Number.isFinite(Date.parse(e.date_played))||typeof e.fully_watched!=='boolean')throw Error('History event changed shape or repeats');ids.add(e.id);events.push(e)}\nif(p.next_page){if(typeof p.next_page!=='string'||(!p.next_page.startsWith(path+'?')&&!p.next_page.startsWith('?'))||p.next_page.includes('#')||seenLinks.has(p.next_page))throw Error('Invalid pagination link');seenLinks.add(p.next_page)}\nelse if(i!==pages.length-1)throw Error('History ended before final page')});\nif(events.length<40||events.length>400)throw Error('History outside 40-400 event bounds');\nreturn [{json:{p_account_id:account,p_events:events,p_execution_id:'n8n:'+$execution.id}}];"
+      },
+      "id": "marquee_validate",
+      "name": "Validate ordered history window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1312,
+        304
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://eiskobjlvxzwvucgpenk.supabase.co/rest/v1/rpc/marquee_ingest_crunchyroll_window",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 120000
+        }
+      },
+      "id": "marquee_rpc",
+      "name": "Ingest Marquee verified window",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1568,
+        304
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_SHARED_PROJECT_SERVICE_CREDENTIAL_ID",
+          "name": "GameDeck Supabase (service)"
+        }
+      }
+    },
+    {
+      "id": "marquee_record_failure",
+      "name": "Record Marquee failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1820,
+        760
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://eiskobjlvxzwvucgpenk.supabase.co/rest/v1/marquee_sync_runs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ ({source:'crunchyroll',user_id:'REPLACE_WITH_REVIEWED_USER_UUID',scope_key:'REPLACE_WITH_REVIEWED_USER_UUID',status:'failed',finished_at:$now.toISO(),execution_id:'n8n:diagnostic:'+$execution.id,error_summary:$json.stage,error_count:1}) }}",
+        "options": {
+          "timeout": 20000,
           "response": {
             "response": {
               "responseFormat": "json"
@@ -132,23 +225,116 @@
           }
         }
       },
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 3000
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_SHARED_PROJECT_SERVICE_CREDENTIAL_ID",
+          "name": "GameDeck Supabase (service)"
+        }
+      }
     },
     {
-      "id": "marquee_check",
-      "name": "Validate Crunchyroll account",
+      "id": "marquee_stop_after_log",
+      "name": "Stop after recorded failure",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        780,
-        300
+        2090,
+        760
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const id=$input.first().json.account_id;if(typeof id!=='string'||!/^[a-zA-Z0-9-]{10,128}$/.test(id))throw Error('Account changed shape');return [{json:{account_id:id}}];"
+        "jsCode": "throw Error('Marquee sync failed; review sanitized marquee_sync_runs entry');"
+      }
+    },
+    {
+      "id": "marquee_diagnostic_0",
+      "name": "Marquee failed at 0",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        270,
+        760
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "return [{json:{stage:\"Exchange Crunchyroll cookie\"}}];"
+      }
+    },
+    {
+      "id": "marquee_diagnostic_1",
+      "name": "Marquee failed at 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        510,
+        760
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "return [{json:{stage:\"Read Crunchyroll account\"}}];"
+      }
+    },
+    {
+      "id": "marquee_diagnostic_2",
+      "name": "Marquee failed at 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        750,
+        760
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "return [{json:{stage:\"Validate Crunchyroll account\"}}];"
+      }
+    },
+    {
+      "id": "marquee_diagnostic_3",
+      "name": "Marquee failed at 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        990,
+        760
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "return [{json:{stage:\"Read bounded recent history\"}}];"
+      }
+    },
+    {
+      "id": "marquee_diagnostic_4",
+      "name": "Marquee failed at 4",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1230,
+        760
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const x=$input.first().json;const s=String(x.error||'');const m=s.match(/Unexpected pagination sequence expected ([0-9]+) got ([0-9]+|missing) pathmatch (true|false) index ([0-9]+)/);return [{json:{stage:m?'Pagination expected '+m[1]+' got '+m[2]+' pathmatch '+m[3]+' index '+m[4]:'Validator other error'}}];"
+      }
+    },
+    {
+      "id": "marquee_diagnostic_5",
+      "name": "Marquee failed at 5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1470,
+        760
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const x=$input.first().json,e=x.error,d=x.details||{};const safe=JSON.stringify({e,d});const known=['Invalid incremental input','Recent history window is outside the reviewed 40 to 400 event bounds','Invalid execution identifier','Expected one reviewed Crunchyroll profile','Reviewed Crunchyroll checkpoint is unavailable','Crunchyroll account differs from the reviewed profile','GameDeck regression baseline changed','Reviewed season-total catalog changed','Recent history includes duplicate IDs or changed record shape','Recent history window missed its reviewed overlap boundary','Source series and parent are both unavailable','A previously staged event changed identity','Source episode identifier changed series','Reviewed mapping does not resolve to exactly one target','Completion target was not persisted','Existing raw evidence points to a different completion'];return [{json:{stage:'RPC guard '+(known.find(v=>safe.includes(v))||'unknown')}}];"
       }
     },
     {
@@ -162,7 +348,7 @@
       ],
       "parameters": {
         "method": "GET",
-        "url": "={{ 'https://www.crunchyroll.com/content/v1/watch-history/' + $json.account_id + '?locale=en-US&page_size=20' }}",
+        "url": "={{ 'https://www.crunchyroll.com/content/v1/watch-history/' + $json.account_id + '?locale=en-US&page=1&page_size=20' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -185,77 +371,19 @@
           },
           "pagination": {
             "pagination": {
-              "paginationMode": "updateAParameterInEachRequest",
-              "parameters": {
-                "parameters": [
-                  {
-                    "type": "qs",
-                    "name": "page",
-                    "value": "={{ $pageCount + 1 }}"
-                  }
-                ]
-              },
+              "paginationMode": "responseContainsNextURL",
+              "nextURL": "={{ (() => { const next=$response.body.next_page; const path='/content/v1/watch-history/'+$('Validate Crunchyroll account').first().json.account_id; if(typeof next!=='string'||(!next.startsWith(path+'?')&&!next.startsWith('?'))||next.includes('#')) throw Error('Unexpected Crunchyroll pagination link'); return 'https://www.crunchyroll.com'+(next.startsWith('?')?path+next:next); })() }}",
               "paginationCompleteWhen": "other",
               "completeExpression": "={{ !$response.body.next_page || $pageCount >= 19 }}",
               "limitPagesFetched": true,
               "maxRequests": 20,
-              "requestInterval": 200
+              "requestInterval": 250
             }
           }
         }
       },
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 3000
-    },
-    {
-      "id": "marquee_validate",
-      "name": "Validate ordered history window",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1300,
-        300
-      ],
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "language": "javaScript",
-        "jsCode": "const pages=$input.all().map(i=>i.json),account=$('Validate Crunchyroll account').first().json.account_id,path='/content/v1/watch-history/'+account,events=[],ids=new Set();\nif(pages.length<2||pages.length>20)throw Error('Invalid history page count');\npages.forEach((p,i)=>{if(!Array.isArray(p.items)||p.items.length>20)throw Error('History page changed shape');\nfor(const e of p.items){if(!e||typeof e.id!=='string'||!e.id||ids.has(e.id)||typeof e.date_played!=='string'||!/^\\d{4}-\\d\\d-\\d\\dT/.test(e.date_played)||!Number.isFinite(Date.parse(e.date_played))||typeof e.fully_watched!=='boolean')throw Error('History event changed shape or repeats');ids.add(e.id);events.push(e)}\nif(p.next_page){if(typeof p.next_page!=='string'||!p.next_page.startsWith('/')&&!p.next_page.startsWith('?'))throw Error('Invalid pagination link');const u=new URL(p.next_page,'https://www.crunchyroll.com'+path+'?page='+(i+1));if(u.origin!=='https://www.crunchyroll.com'||u.pathname!==path||u.hash||Number(u.searchParams.get('page'))!==i+2)throw Error('Unexpected pagination sequence')}\nelse if(i!==pages.length-1)throw Error('History ended before final page')});\nif(events.length<40||events.length>400)throw Error('History outside 40-400 event bounds');\nreturn [{json:{p_account_id:account,p_events:events,p_execution_id:'n8n:'+$execution.id}}];"
-      }
-    },
-    {
-      "id": "marquee_rpc",
-      "name": "Ingest Marquee verified window",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
-      "position": [
-        1560,
-        300
-      ],
-      "parameters": {
-        "method": "POST",
-        "url": "https://eiskobjlvxzwvucgpenk.supabase.co/rest/v1/rpc/marquee_ingest_crunchyroll_window",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "supabaseApi",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ $json }}",
-        "options": {
-          "timeout": 120000,
-          "response": {
-            "response": {
-              "responseFormat": "json"
-            }
-          }
-        }
-      },
-      "credentials": {
-        "supabaseApi": {
-          "id": "REPLACE_WITH_SHARED_PROJECT_SERVICE_CREDENTIAL_ID",
-          "name": "Shared Supabase service role"
-        }
-      }
+      "onError": "continueErrorOutput",
+      "retryOnFail": false
     }
   ],
   "connections": {
@@ -264,6 +392,13 @@
         [
           {
             "node": "Read Crunchyroll account",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marquee failed at 0",
             "type": "main",
             "index": 0
           }
@@ -278,6 +413,13 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Marquee failed at 1",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
@@ -289,14 +431,10 @@
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Read bounded recent history": {
-      "main": [
+        ],
         [
           {
-            "node": "Validate ordered history window",
+            "node": "Marquee failed at 2",
             "type": "main",
             "index": 0
           }
@@ -308,6 +446,13 @@
         [
           {
             "node": "Ingest Marquee verified window",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marquee failed at 4",
             "type": "main",
             "index": 0
           }
@@ -330,6 +475,113 @@
         [
           {
             "node": "Exchange Crunchyroll cookie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Marquee failure": {
+      "main": [
+        [
+          {
+            "node": "Stop after recorded failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquee failed at 0": {
+      "main": [
+        [
+          {
+            "node": "Record Marquee failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquee failed at 1": {
+      "main": [
+        [
+          {
+            "node": "Record Marquee failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquee failed at 2": {
+      "main": [
+        [
+          {
+            "node": "Record Marquee failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquee failed at 3": {
+      "main": [
+        [
+          {
+            "node": "Record Marquee failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquee failed at 4": {
+      "main": [
+        [
+          {
+            "node": "Record Marquee failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingest Marquee verified window": {
+      "main": [
+        null,
+        [
+          {
+            "node": "Marquee failed at 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marquee failed at 5": {
+      "main": [
+        [
+          {
+            "node": "Record Marquee failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read bounded recent history": {
+      "main": [
+        [
+          {
+            "node": "Validate ordered history window",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marquee failed at 3",
             "type": "main",
             "index": 0
           }

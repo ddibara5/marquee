@@ -1,0 +1,347 @@
+{
+  "name": "Marquee | Crunchyroll incremental history (review first)",
+  "nodes": [
+    {
+      "id": "marquee_manual",
+      "name": "Run once for review",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "marquee_schedule",
+      "name": "Daily at 09:00 UTC (enable after manual check)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        },
+        "misfirePolicy": "skip"
+      },
+      "disabled": true
+    },
+    {
+      "id": "marquee_token",
+      "name": "Exchange Crunchyroll cookie",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.crunchyroll.com/auth/v1/token",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic bm9haWhkZXZtXzZpeWcwYThsMHE6"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "etp_rt_cookie"
+            },
+            {
+              "name": "scope",
+              "value": "offline_access"
+            },
+            {
+              "name": "device_id",
+              "value": "2cfbca94-2d6f-4b81-ad06-29f2825120cb"
+            },
+            {
+              "name": "device_name",
+              "value": "Marquee n8n"
+            },
+            {
+              "name": "device_type",
+              "value": "com.crunchyroll.desktop.windows"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_N8N_COOKIE_CREDENTIAL_ID",
+          "name": "Marquee Crunchyroll cookie"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "marquee_account",
+      "name": "Read Crunchyroll account",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        520,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://www.crunchyroll.com/accounts/v1/me",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $('Exchange Crunchyroll cookie').first().json.access_token }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "marquee_check",
+      "name": "Validate Crunchyroll account",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const id=$input.first().json.account_id;if(typeof id!=='string'||!/^[a-zA-Z0-9-]{10,128}$/.test(id))throw Error('Account changed shape');return [{json:{account_id:id}}];"
+      }
+    },
+    {
+      "id": "marquee_history",
+      "name": "Read bounded recent history",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1040,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://www.crunchyroll.com/content/v1/watch-history/' + $json.account_id + '?locale=en-US&page_size=20' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $('Exchange Crunchyroll cookie').first().json.access_token }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "page",
+                    "value": "={{ $pageCount + 1 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.next_page || $pageCount >= 19 }}",
+              "limitPagesFetched": true,
+              "maxRequests": 20,
+              "requestInterval": 200
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "marquee_validate",
+      "name": "Validate ordered history window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const pages=$input.all().map(i=>i.json),account=$('Validate Crunchyroll account').first().json.account_id,path='/content/v1/watch-history/'+account,events=[],ids=new Set();\nif(pages.length<2||pages.length>20)throw Error('Invalid history page count');\npages.forEach((p,i)=>{if(!Array.isArray(p.items)||p.items.length>20)throw Error('History page changed shape');\nfor(const e of p.items){if(!e||typeof e.id!=='string'||!e.id||ids.has(e.id)||typeof e.date_played!=='string'||!/^\\d{4}-\\d\\d-\\d\\dT/.test(e.date_played)||!Number.isFinite(Date.parse(e.date_played))||typeof e.fully_watched!=='boolean')throw Error('History event changed shape or repeats');ids.add(e.id);events.push(e)}\nif(p.next_page){if(typeof p.next_page!=='string'||!p.next_page.startsWith('/')&&!p.next_page.startsWith('?'))throw Error('Invalid pagination link');const u=new URL(p.next_page,'https://www.crunchyroll.com'+path+'?page='+(i+1));if(u.origin!=='https://www.crunchyroll.com'||u.pathname!==path||u.hash||Number(u.searchParams.get('page'))!==i+2)throw Error('Unexpected pagination sequence')}\nelse if(i!==pages.length-1)throw Error('History ended before final page')});\nif(events.length<40||events.length>400)throw Error('History outside 40-400 event bounds');\nreturn [{json:{p_account_id:account,p_events:events,p_execution_id:'n8n:'+$execution.id}}];"
+      }
+    },
+    {
+      "id": "marquee_rpc",
+      "name": "Ingest Marquee verified window",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1560,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://eiskobjlvxzwvucgpenk.supabase.co/rest/v1/rpc/marquee_ingest_crunchyroll_window",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_SHARED_PROJECT_SERVICE_CREDENTIAL_ID",
+          "name": "Shared Supabase service role"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Exchange Crunchyroll cookie": {
+      "main": [
+        [
+          {
+            "node": "Read Crunchyroll account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Crunchyroll account": {
+      "main": [
+        [
+          {
+            "node": "Validate Crunchyroll account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Crunchyroll account": {
+      "main": [
+        [
+          {
+            "node": "Read bounded recent history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read bounded recent history": {
+      "main": [
+        [
+          {
+            "node": "Validate ordered history window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate ordered history window": {
+      "main": [
+        [
+          {
+            "node": "Ingest Marquee verified window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run once for review": {
+      "main": [
+        [
+          {
+            "node": "Exchange Crunchyroll cookie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily at 09:00 UTC (enable after manual check)": {
+      "main": [
+        [
+          {
+            "node": "Exchange Crunchyroll cookie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Etc/UTC",
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  }
+}

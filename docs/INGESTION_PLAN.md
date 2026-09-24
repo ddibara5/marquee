@@ -1,5 +1,7 @@
 # Ingestion schema and contract
 
+Current incremental state (2026-09-24): the historical verified Crunchyroll backfill has been merged. An inactive n8n workflow uses the [Marquee incremental runbook](../scripts/crunchyroll/N8N_INCREMENTAL.md) and a service-only transaction. Its Crunchyroll cookie still needs secure setup in n8n, followed by a checked manual run; the daily trigger is disabled. Older planning measurements and proposed mappings below describe past review stages, not the current live import state.
+
 Status: Phase 1 schema applied 2026-09-23 as migrations `20260923151159` and `20260923152134`. All new objects are `marquee_*` in `public`. No existing GameDeck object or global default privilege was changed.
 
 ## Crunchyroll date policy (2026-09-24)

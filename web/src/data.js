@@ -13,7 +13,7 @@ export async function allRows(table, select = '*') {
   }
 }
 export async function loadLibrary() {
-  const names = ['marquee_titles', 'marquee_seasons', 'marquee_episodes', 'marquee_episode_completion_coverage', 'marquee_movie_completion_coverage', 'marquee_watch_history', 'marquee_statuses', 'marquee_ratings', 'marquee_watchlist']
+  const names = ['marquee_titles', 'marquee_seasons', 'marquee_episodes', 'marquee_episode_completion_coverage', 'marquee_movie_completion_coverage', 'marquee_watch_history', 'marquee_statuses', 'marquee_ratings']
   const values = await Promise.all(names.map(name => allRows(name)))
   return Object.fromEntries(names.map((name, index) => [name.replace('marquee_', ''), values[index]]))
 }
@@ -39,7 +39,7 @@ export function buildIndex(data) {
   const seasonStatuses = new Map(data.statuses.filter(s => s.season_id).map(s => [s.season_id,s]))
   const ratings = new Map(data.ratings.filter(r => r.title_id).map(r => [r.title_id,r]))
   const seasonRatings = new Map(data.ratings.filter(r => r.season_id).map(r => [r.season_id,r]))
-  const watchlist = new Map(data.watchlist.map(w => [w.title_id,w]))
+  const watchlist = new Map((data.watchlist || []).map(w => [w.title_id,w]))
   const history = new Map()
   for (const event of data.watch_history) {
     const key = event.episode_id || event.movie_title_id

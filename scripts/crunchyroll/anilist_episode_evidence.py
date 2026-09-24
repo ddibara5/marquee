@@ -7,7 +7,9 @@ import argparse
 from collections import defaultdict
 import json
 import os
+import re
 import sys
+from urllib.parse import urlsplit
 from urllib.request import Request
 from uuid import UUID
 
@@ -21,6 +23,7 @@ QUERY = """query ($ids: [Int]) {
     pageInfo { hasNextPage }
     media(id_in: $ids, type: ANIME) {
       id episodes startDate { year }
+      externalLinks { site url }
     }
   }
 }"""
@@ -58,20 +61,43 @@ def anilist_metadata(media_ids, *, requester=request_json):
         year = date.get("year") if isinstance(date, dict) else None
         if year is not None and (type(year) is not int or year < 1880 or year > 2200):
             raise ReviewError("AniList start year changed shape")
-        result[media_id] = (episodes, year)
+        links = media.get("externalLinks")
+        if links is not None and not isinstance(links, list):
+            raise ReviewError("AniList external links changed shape")
+        series_ids = set()
+        for link in links or []:
+            if isinstance(link, dict) and isinstance(link.get("url"), str):
+                series_id = crunchyroll_series_id(link["url"])
+                if series_id:
+                    series_ids.add(series_id)
+        result[media_id] = (episodes, year, series_ids)
     if len(result) != len(ids):
         raise ReviewError("AniList candidate metadata is incomplete")
     return result
 
 
+def crunchyroll_series_id(url):
+    parsed = urlsplit(url)
+    if parsed.scheme != "https" or parsed.netloc.lower() not in (
+            "www.crunchyroll.com", "crunchyroll.com"):
+        return None
+    parts = [p for p in parsed.path.split("/") if p]
+    if parts and re.fullmatch(r"[a-z]{2}(?:-[a-z]{2})?", parts[0]):
+        parts = parts[1:]
+    if len(parts) < 2 or parts[0] != "series":
+        return None
+    return parts[1] if re.fullmatch(r"[A-Za-z0-9_-]+", parts[1]) else None
+
+
 def evidence(records, review_rows, metadata):
-    source = defaultdict(lambda: {"numbers": set(), "air_years": set()})
+    source = defaultdict(lambda: {"numbers": set(), "air_years": set(), "series": set()})
     for event in records:
         panel = event.get("panel")
         episode = panel.get("episode_metadata") if isinstance(panel, dict) else None
         if not isinstance(episode, dict):
             continue
         season = source[episode["season_id"]]
+        season["series"].add(episode["series_id"])
         number = episode.get("episode_number")
         if (type(number) is int or isinstance(number, str) and number.isdecimal()) and int(number) > 0:
             season["numbers"].add(int(number))
@@ -84,9 +110,20 @@ def evidence(records, review_rows, metadata):
             continue
         out["one_title_candidate_seasons"] += 1
         media_id = int(row["candidates"][0]["anilist_media_id"])
-        total, year = metadata[media_id]
+        total, year, linked_series = metadata[media_id]
         numbers = source[season_id]["numbers"]
         years = source[season_id]["air_years"]
+        if len(source[season_id]["series"]) != 1:
+            raise ReviewError("Source season crosses series identities")
+        series_id = next(iter(source[season_id]["series"]))
+        if linked_series:
+            out["anilist_has_crunchyroll_series_link"] += 1
+            if len(linked_series) > 1:
+                out["anilist_has_multiple_crunchyroll_series_links"] += 1
+            elif series_id in linked_series:
+                out["exact_source_series_id_in_anilist_link"] += 1
+            else:
+                out["anilist_link_points_to_other_series"] += 1
         if total is None:
             out["anilist_episode_total_unavailable"] += 1
         elif not numbers:

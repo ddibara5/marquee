@@ -6,12 +6,12 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/crunchyroll"))
-from anilist_episode_evidence import ReviewError, anilist_metadata, evidence
+from anilist_episode_evidence import ReviewError, anilist_metadata, crunchyroll_series_id, evidence
 
 
 def event(season, number, air_date):
     return {"panel": {"episode_metadata": {
-        "season_id": season, "episode_number": number,
+        "season_id": season, "series_id": "series-1", "episode_number": number,
         "episode_air_date": air_date}}}
 
 
@@ -22,12 +22,15 @@ class AniListEvidenceTests(unittest.TestCase):
             self.assertEqual(variables["ids"], [101, 202])
             return {"data": {"Page": {"pageInfo": {"hasNextPage": False},
                                      "media": [{"id": 101, "episodes": 12,
-                                                "startDate": {"year": 2025}},
+                                                "startDate": {"year": 2025},
+                                                "externalLinks": [{"site": "Crunchyroll",
+                                                  "url": "https://www.crunchyroll.com/series/series-1/example"}]},
                                                {"id": 202, "episodes": None,
-                                                "startDate": {"year": 2026}}]}}}
+                                                "startDate": {"year": 2026},
+                                                "externalLinks": []}]}}}
 
         self.assertEqual(anilist_metadata({"202", "101"}, requester=requester),
-                         {101: (12, 2025), 202: (None, 2026)})
+                         {101: (12, 2025, {"series-1"}), 202: (None, 2026, set())})
         with self.assertRaises(ReviewError):
             anilist_metadata({"101"}, requester=lambda _: {
                 "data": {"Page": {"pageInfo": {"hasNextPage": False}, "media": []}}})
@@ -38,13 +41,24 @@ class AniListEvidenceTests(unittest.TestCase):
                 "c": {"candidates": []}}
         records = [event("a", 3, "2025-04-01"), event("a", 12, "2025-06-01"),
                    event("b", 14, "2020-01-01"), event("c", 1, "2026-01-01")]
-        out = evidence(records, rows, {101: (12, 2025), 202: (10, 2026)})
+        out = evidence(records, rows, {101: (12, 2025, {"series-1"}),
+                                       202: (10, 2026, {"other-series"})})
         self.assertEqual(out["one_title_candidate_seasons"], 2)
         self.assertEqual(out["observed_numbers_within_anilist_total"], 1)
         self.assertEqual(out["highest_observed_equals_anilist_total"], 1)
         self.assertEqual(out["observed_number_exceeds_anilist_total"], 1)
         self.assertEqual(out["year_and_number_both_compatible"], 1)
+        self.assertEqual(out["exact_source_series_id_in_anilist_link"], 1)
+        self.assertEqual(out["anilist_link_points_to_other_series"], 1)
         self.assertNotIn("approved_mappings", out)
+
+    def test_series_url_parser_requires_exact_host_and_series_path(self):
+        self.assertEqual(crunchyroll_series_id(
+            "https://www.crunchyroll.com/en-us/series/SOURCE1/show"), "SOURCE1")
+        self.assertIsNone(crunchyroll_series_id(
+            "https://www.crunchyroll.com.evil.example/series/SOURCE1"))
+        self.assertIsNone(crunchyroll_series_id(
+            "https://www.crunchyroll.com/watch/SOURCE1"))
 
 
 if __name__ == "__main__":

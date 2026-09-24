@@ -1,6 +1,6 @@
 # Trakt importer
 
-The repository is canonical for this importer. `trakt_sync.py` is a Python 3.11+ command-line process, separate from n8n. It reads the six Trakt sync feeds (movie and episode history; movie and show ratings; movie and show watchlists), preserves raw records and source IDs, and writes Marquee catalog and user state. It never uses titles as durable identity keys.
+The [n8n importer](N8N.md) is the recurring runner. This document also describes the original Python importer, retained for manual recovery and comparison. Both read the same six Trakt sync feeds (movie and episode history; movie and show ratings; movie and show watchlists), preserve raw records and source IDs, and never use titles as durable identity keys.
 
 ## Run requirements
 
@@ -29,7 +29,7 @@ Dave approved the first live import on 2026-09-23. The [first run](https://githu
 
 ### GitHub Actions setup (no local software)
 
-This is the recommended path. In `ddibara5/marquee` repository **Settings > Secrets and variables > Actions**, create these three secrets. Keep the earlier `TRAKT_CLIENT_ID` and `TRAKT_ACCESS_TOKEN` untouched while enrolling the new app:
+Historical GitHub recovery setup: in `ddibara5/marquee` repository **Settings > Secrets and variables > Actions**, these three secrets were used. The n8n OAuth credential uses a separate Trakt app and must not share GitHub's refresh-token chain:
 
 | Secret | Value |
 | --- | --- |
@@ -45,7 +45,7 @@ For refresh, set the repository **Actions variable** `TRAKT_MARQUEE_REDIRECT_URI
 
 The manual **Trakt sync** dispatch defaults to `dry_run: true`, which fetches and validates every page without connecting to Supabase. After reviewing that result, dispatch again with `dry_run: false` for the idempotent database replay. To verify rotation without waiting five days, set the exact redirect URI variable and dispatch with `dry_run: true` and `refresh_now: true`: this consumes the current refresh token and saves a replacement pair, then validates Trakt pages without database writes. The controlled refresh [succeeded on September 23](https://github.com/ddibara5/marquee/actions/runs/35927368280), validating all six feeds after the new bundle was saved. The full Marquee-token [database replay](https://github.com/ddibara5/marquee/actions/runs/35924066473) matched prior counts with zero new history rows.
 
-The same workflow runs daily at **11:17 UTC** (7:17 AM Eastern Daylight Time or 6:17 AM Eastern Standard Time). Scheduled events run the database import and do not force a refresh; when tokens are five days old, refresh occurs automatically before importing. GitHub schedules may start later than the cron time. Check the first scheduled result for success, counts and an advanced Marquee sync checkpoint. Keep `MARQUEE_SECRETS_WRITE_TOKEN` valid for future refreshes; if it expires, rotate that repository secret before the next token refresh. If enrollment fails after Trakt authorization but before GitHub stores the bundle, dispatch authorization again for a new device code.
+The GitHub schedule previously ran at **11:17 UTC**. It is disabled after the verified n8n replay; the workflow remains available by manual dispatch for recovery. Do not run both importers at the same time. If recovering through GitHub, keep `MARQUEE_SECRETS_WRITE_TOKEN` valid for token refresh.
 
 ### Local fallback
 
@@ -65,4 +65,4 @@ The importer fetches complete snapshots and checks every page's count and identi
 
 Movie and vetted non-anime TV observations are imported. Unapproved shows and ambiguous external mappings enter review; missing stable IDs or unexpected payload shapes fail the entire run. Episode ratings are outside the current Marquee rating schema. Overlap with Crunchyroll anime is deferred until the documented cross-source rule is verified on real timestamps.
 
-The ongoing scheduler is GitHub Actions. This repository holds the code and contract; n8n does not execute this Python file on n8n Cloud.
+The ongoing scheduler is n8n. It invokes the Marquee-only transaction in `supabase/migrations/20260924210000_marquee_trakt_n8n_rpc.sql`; n8n Cloud does not execute this Python file.

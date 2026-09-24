@@ -22,6 +22,15 @@ Other priority candidates remain **unmapped** at the series and season/episode l
 
 The four show-level-recognized bulk clusters remain held: My Hero Academia has 180 complete source identifiers (1,033 panel observations, 1,029 at one second); Attack on Titan 99 (529 panels, 528 at one second); World Trigger 99 (157 panels, 156 at one second); and Hunter x Hunter 148 (148 panels, 147 at one second). These 526 identifiers need actual watched-scope review even though Dave recognizes the shows. Their source seconds do not establish watch dates.
 
+For a specific owner scope decision, the 526 source identifiers break down as follows. These are Crunchyroll's own group labels; specials and numbered TV episodes still need separate canonical identities.
+
+| Source show | Grouped source identifiers |
+| --- | --- |
+| My Hero Academia | Season 1: 13; Season 2: 26 (includes 13.5); Season 3: 25; Season 4: 27; Season 5: 27; Season 6: 26; *Memories*: 4; Season 7: 21; Final Season: 11. |
+| Attack on Titan | First series: 25; Season 2: 12; Season 3: 22; Final Season: 30; OADs: 8; two unnumbered specials (0.5 and 13.5). |
+| World Trigger | First series: 73; second season: 12; third season: 14. |
+| Hunter x Hunter | One 2011 series with episodes 1–148. |
+
 The other 21 source series have 614 completed source identifiers in total, with unresolved source-to-AniList season and episode identities. They include Sword Art Online, Dr. Stone, Blue Exorcist, Fullmetal Alchemist: Brotherhood, Demon Slayer, Jujutsu Kaisen, Code Geass, Spy x Family, Re:Zero, Solo Leveling, Tokyo Ghoul, Michiko & Hatchin, The Apothecary Diaries, Fire Force, Yu Yu Hakusho, Fruits Basket and the separate *Jujutsu Kaisen 0* film; four more series have only partial playback. Generic numbered-season candidates still contain wrong-show suggestions (for example Re:Zero Season 2 and Spy x Family Season 2), and the imported AniList **catalog** has only the 47 seasons and 3 films present in Dave's 50-entry user-list seed. Expand the catalog independently of the user list and rerun/review the candidate queue before approving season mappings.
 
 The current live season review queue is **222 open rows with 301 candidate entries**, rather than the historical 307-entry snapshot below: 135 have one title candidate, 29 have multiple and 58 have none. The reduction followed the Blue Lock generic-season correction. None of these title candidates is an approved mapping. There are still zero Crunchyroll season mappings, episode mappings, undated completion tables or canonical watches.

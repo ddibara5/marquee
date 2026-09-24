@@ -7,11 +7,16 @@ import argparse
 from collections import Counter, defaultdict
 import json
 import os
+import re
 import sys
 from uuid import UUID
 
 from catalog_overlap_probe import normalized_title, season_title_indexes
 from staged_review import ReviewError, analyze, relation_edges, source_snapshot
+
+
+def generic_season_label(title):
+    return bool(re.fullmatch(r"(?:season|series)\s+[0-9]+", title))
 
 
 def prepare(records, seasons):
@@ -43,12 +48,18 @@ def prepare(records, seasons):
     result = {}
     counts = Counter()
     for season_id, name in names.items():
-        season_matches = set().union(*(by_season[t] for t in name["season"] if t))
+        specific_names = {t for t in name["season"] if t and not generic_season_label(t)}
+        season_names = specific_names or name["season"]
+        season_matches = set().union(*(by_season[t] for t in season_names if t))
         show_matches = set().union(*(by_show[t] for t in name["show"] if t))
-        conflict = bool(season_matches and show_matches and not (season_matches & show_matches))
-        matches = (season_matches | show_matches if conflict else
-                   season_matches & show_matches if season_matches & show_matches else
-                   season_matches | show_matches)
+        if season_names and not specific_names:
+            # A generic number can narrow a named show, never identify another show.
+            matches, conflict = season_matches & show_matches, False
+        else:
+            conflict = bool(season_matches and show_matches and not (season_matches & show_matches))
+            matches = (season_matches | show_matches if conflict else
+                       season_matches & show_matches if season_matches & show_matches else
+                       season_matches | show_matches)
         category = ("conflicting" if conflict else "one" if len(matches) == 1
                     else "multiple" if matches else "none")
         counts[category] += 1

@@ -35,6 +35,17 @@ class ReviewQueueTests(unittest.TestCase):
         with self.assertRaises(ReviewError):
             prepare([sample("s1"), other], [])
 
+    def test_generic_season_number_never_matches_other_shows(self):
+        seasons = [("blue-1", "Blue Lock", "Season 1", [], "101", []),
+                   ("other-2", "Other show", "Season 2", [], "202", [])]
+        rows, counts = prepare([sample("blue-2", "Blue Lock", "Season 2")], seasons)
+        self.assertEqual(counts, {"none": 1})
+        self.assertEqual(rows["blue-2"]["candidates"], [])
+        seasons.append(("blue-2-target", "Blue Lock", "Season 2", [], "303", []))
+        rows, counts = prepare([sample("blue-2", "Blue Lock", "Season 2")], seasons)
+        self.assertEqual(counts, {"one": 1})
+        self.assertEqual(rows["blue-2"]["candidates"][0]["canonical_season_id"], "blue-2-target")
+
 
 class FakeCursor:
     def __init__(self, store):

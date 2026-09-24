@@ -1,0 +1,40 @@
+name: Crunchyroll season candidate queue (manual)
+
+on:
+  push:
+    branches: [main]
+    paths: ['scripts/crunchyroll/season_review_queue.py']
+  workflow_dispatch:
+    inputs:
+      apply_review:
+        description: Fill private season review candidates only; no mappings or watches
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marquee-crunchyroll-season-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Postgres driver
+        run: pip install "psycopg[binary]==3.3.6"
+      - name: Preview or populate private season review candidates
+        shell: bash
+        run: |
+          args=(--user-id c566e7e0-880a-430d-85df-c40484144a91)
+          if [[ "$APPLY_REVIEW" == "true" ]]; then args+=(--apply-review); fi
+          python3 scripts/crunchyroll/season_review_queue.py "${args[@]}"
+        env:
+          APPLY_REVIEW: ${{ inputs.apply_review }}
+          MARQUEE_DATABASE_URL: ${{ secrets.MARQUEE_DATABASE_URL }}

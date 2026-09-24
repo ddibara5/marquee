@@ -44,12 +44,14 @@ The four bulk-marked shows have 526 complete source identifiers in all: My Hero 
 
 For auditing the owner scope decision, the 526 source identifiers break down as follows. These are Crunchyroll's own group labels; specials and numbered TV episodes still need separate canonical identities.
 
-| Source show | Grouped source identifiers |
-| --- | --- |
-| My Hero Academia | Season 1: 13; Season 2: 26 (includes 13.5); Season 3: 25; Season 4: 27; Season 5: 27; Season 6: 26; *Memories*: 4; Season 7: 21; Final Season: 11. |
-| Attack on Titan | First series: 25; Season 2: 12; Season 3: 22; Final Season: 30; OADs: 8; two unnumbered specials (0.5 and 13.5). |
-| World Trigger | First series: 73; second season: 12; third season: 14. |
-| Hunter x Hunter | One 2011 series with episodes 1–148. |
+| Source show and stable series ID | Proposed main-story identifiers | Held extras |
+| --- | --- | --- |
+| My Hero Academia `G6NQ5DWZ6` | S1 1–13 (13); S2 14–38 (25); S3 39–63 (25); S4 64–88 (25); S5 89–113 (25); S6 114–138 (25); S7 139–159 (21); Final Season 160–170 (11). **170** in all. | *Memories* 4, OVA4/5/7/8/9 (5), recap 13.5 (1). The five OVA numbers collide with regular 1–13, so number alone is unsafe. |
+| Attack on Titan `GR751KNZY` | First series 1–25 (25); S2 26–37 (12); S3 38–59 (22); Final Season 60–87 (28) and Final Chapters SP1/SP2 (2). **89** in all. | OADs 1–8 (8), PV 0.5 and recap 13.5 (2). Final Chapters remain an explicit interpretation of Dave's main-season selection. |
+| World Trigger `GR757DMKY` | First series 1–73 (73); second season 1–12 (12); third season 1–14 (14). **99** in all. | None from this bulk group. |
+| Hunter x Hunter `GY3VKX1MR` | One 2011 series with episodes 1–148. **148** in all. | None from this bulk group. |
+
+These are ranges of unique Crunchyroll metadata identifiers **after** grouping observed dubs; a language-specific source season ID can differ for the same identifier. Source season/version IDs and episode numbering still need to be reconciled to verified AniList catalog season IDs before creating canonical episode rows or statuses. AniList's imported relation graph supplies first-sequel anchors (My Hero Academia `21459` → `21856`, Attack on Titan `16498` → `20958`, World Trigger `20729` → `114087`) but does not by itself resolve their later seasons or specials. Hunter x Hunter's imported AniList media ID is `11061`.
 
 The other 21 source series have 614 completed source identifiers in total, with unresolved source-to-AniList season and episode identities. They include Sword Art Online, Dr. Stone, Blue Exorcist, Fullmetal Alchemist: Brotherhood, Demon Slayer, Jujutsu Kaisen, Code Geass, Spy x Family, Re:Zero, Solo Leveling, Tokyo Ghoul, Michiko & Hatchin, The Apothecary Diaries, Fire Force, Yu Yu Hakusho, Fruits Basket and the separate *Jujutsu Kaisen 0* film; four more series have only partial playback. Generic numbered-season candidates still contain wrong-show suggestions (for example Re:Zero Season 2 and Spy x Family Season 2), and the imported AniList **catalog** has only the 47 seasons and 3 films present in Dave's 50-entry user-list seed. Expand the catalog independently of the user list and rerun/review the candidate queue before approving season mappings.
 

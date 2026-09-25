@@ -14,6 +14,10 @@ Marquee is a personal screen journal for picking up a show, checking an episode,
 - Separate source meanings in the UI: `Trakt` dated watch, `You` manual check-in, `Crunchyroll · source-reported date` for eligible promptly observed activity, and `Historical completion · date unverified` for older evidence. A source-reported date is not independently verified.
 - Support loading, empty, failed, and saved states, visible keyboard focus, comfortable tap targets, and reduced motion. Check an iPhone viewport and the narrowest supported width after substantial changes.
 
+## Home screen icon (2026-09-25)
+
+The approved mark is a single coral admission ticket with a darker split stub on a charcoal square. `web/assets/marquee-ticket.svg` is the master; `web/public/icons/marquee-v1-*` contains exported touch and manifest PNGs and `favicon-v1-*` contains browser icons. Keep the visible ticket within the maskable safe area. When changing the mark, increment the filenames and manifest URL in `web/index.html` to refresh iOS icon caches.
+
 ## Before changing direction
 
 Inspect the current `web/src/App.jsx` and `web/src/style.css`, and compare GameDeck's patterns where relevant. Use `.agents/skills/interface-design/SKILL.md` to refine the direction, `.agents/skills/react-best-practices/SKILL.md` during implementation, and `.agents/skills/web-design-guidelines/SKILL.md` for review. Record later approved enduring design decisions here.

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Marquee split ticket">
+  <rect width="1024" height="1024" fill="#0b1018"/>
+  <g transform="rotate(-11 512 512)">
+    <path d="M252 346H651V678H252C236 678 224 666 224 650V556C255 556 278 537 278 512S255 468 224 468V374C224 358 236 346 252 346Z" fill="#ff5a69"/>
+    <path d="M679 346H772C788 346 800 358 800 374V468C769 468 746 487 746 512S769 556 800 556V650C800 666 788 678 772 678H679Z" fill="#c83650"/>
+  </g>
+</svg>
